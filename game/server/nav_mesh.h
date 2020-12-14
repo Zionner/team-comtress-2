@@ -198,8 +198,13 @@ public:
 
 	unsigned int operator()( const NavVisPair_t &item ) const
 	{
-		COMPILE_TIME_ASSERT( sizeof(CNavArea *) == 4 );
+#if !defined(_WIN64)
+		COMPILE_TIME_ASSERT(sizeof(CNavArea*) == 4);
 		int key[2] = { (int)item.pAreas[0] + (int)item.pAreas[1]->GetID(), (int)item.pAreas[1] + (int)item.pAreas[0]->GetID() };
+#elif defined(_WIN64)
+		COMPILE_TIME_ASSERT(sizeof(CNavArea*) == 8); // TODO - This seems to be a fix, but it needs to be properly inspected.
+		int key[2] = { (__int64)item.pAreas[0] + (__int64)item.pAreas[1]->GetID(), (__int64)item.pAreas[1] + (__int64)item.pAreas[0]->GetID() };
+#endif
 		return Hash8( key );
 	}
 };

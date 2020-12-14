@@ -49,6 +49,9 @@ struct AISightIterVal_t
 	char  array;
 	short iNext;
 	char  SeenArray;
+#if defined(_WIN64)
+	int padding; // Aidan: I couldn't see a reason why AISightIter_t needs to be the same size of AISightIterVal_t, so I've just added padding in x64 until I find a reason otherwise.
+#endif
 };
 
 #pragma pack(pop)
@@ -246,7 +249,7 @@ bool CAI_Senses::SeeEntity( CBaseEntity *pSightEnt )
 
 CBaseEntity *CAI_Senses::GetFirstSeenEntity( AISightIter_t *pIter, seentype_t iSeenType ) const
 { 
-	COMPILE_TIME_ASSERT( sizeof( AISightIter_t ) == sizeof( AISightIterVal_t ) );
+	COMPILE_TIME_ASSERT( sizeof( AISightIter_t ) == sizeof( AISightIterVal_t ) ); // TODO: Revisit this. x64 breaks.
 	
 	AISightIterVal_t *pIterVal = (AISightIterVal_t *)pIter;
 	
