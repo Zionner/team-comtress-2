@@ -1078,7 +1078,7 @@ void CPhysicsObject::ClampVelocity()
 	if ( m_pShadow )
 		return;
 
-	m_pObject->get_core()->apply_velocity_limit();
+	//m_pObject->get_core()->apply_velocity_limit();
 }
 
 void GetWorldCoordFromSynapse( IVP_Synapse_Friction *pfriction, IVP_U_Point &world )
@@ -1307,7 +1307,7 @@ void CPhysicsObject::BecomeTrigger()
 	// UNDONE: Use defaults here?  Do we want object sets by default?
 	IVP_Template_Phantom trigger;
 	trigger.manage_intruding_cores = IVP_TRUE; // manage a list of intruded objects
-	trigger.manage_sleeping_cores = IVP_TRUE; // don't untouch/touch on sleep/wake
+	//trigger.manage_sleeping_cores = IVP_TRUE; // don't untouch/touch on sleep/wake
 	trigger.dont_check_for_unmoveables = IVP_TRUE;
 	trigger.exit_policy_extra_radius = 0.1f; // relatively strict exit check [m]
 
@@ -1420,7 +1420,7 @@ void CPhysicsObject::OutputDebugInfo() const
 	{
 		// NOTE: Set a breakpoint here and take a look at what it's hooked to
 		IVP_Controller *pController = m_pObject->get_core()->controllers_of_core.element_at(k);
-		Msg("%d) %s\n", k, pController->get_controller_name() );
+		//Msg("%d) %s\n", k, pController->get_controller_name() );
 	}
 	Msg("State: %s, Collision %s, Motion %s, %sFlags %04X (game %04x, index %d)\n", 
 		IsAsleep() ? "Asleep" : "Awake",
@@ -1989,7 +1989,7 @@ void PostRestorePhysicsObject()
 		{
 			if ( g_PostRestoreObjectList[i].growFriction )
 			{
-				g_PostRestoreObjectList[i].pObject->GetObject()->force_grow_friction_system();
+				//g_PostRestoreObjectList[i].pObject->GetObject()->force_grow_friction_system();
 			}
 			if ( g_PostRestoreObjectList[i].enableCollisions )
 			{

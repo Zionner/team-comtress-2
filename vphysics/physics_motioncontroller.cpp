@@ -188,7 +188,7 @@ void CPhysicsMotionController::do_simulation_controller(IVP_Event_Sim *event,IVP
 				}
 				break;
 			}
-			pCore->apply_velocity_limit();
+			//pCore->apply_velocity_limit();
 		}
 	}
 }

@@ -197,11 +197,11 @@ public:
 	void WriteToTemplate( vphysics_save_cphysicsconstraintgroup_t &groupParams )
 	{
 		hk_Local_Constraint_System_BP bp;
-		m_pLCS->write_to_blueprint( &bp );
-		groupParams.additionalIterations = bp.m_n_iterations;
-		groupParams.isActive = bp.m_active;
-		groupParams.minErrorTicks = bp.m_minErrorTicks;
-		groupParams.errorTolerance = ConvertDistanceToHL(bp.m_errorTolerance);
+		//m_pLCS->write_to_blueprint( &bp );
+		//groupParams.additionalIterations = bp.m_n_iterations;
+		//groupParams.isActive = bp.m_active;
+		//groupParams.minErrorTicks = bp.m_minErrorTicks;
+		//groupParams.errorTolerance = ConvertDistanceToHL(bp.m_errorTolerance);
 	}
 
 public:
@@ -230,7 +230,7 @@ bool CPhysicsConstraintGroup::IsInErrorState()
 {
 	if (m_pLCS)
 	{
-		return m_pLCS->has_error();
+		return false;// m_pLCS->has_error();
 	}
 	return false;
 }
@@ -239,7 +239,7 @@ void CPhysicsConstraintGroup::ClearErrorState()
 {
 	if (m_pLCS)
 	{
-		m_pLCS->clear_error();
+		//m_pLCS->clear_error();
 	}
 }
 
@@ -259,8 +259,8 @@ void CPhysicsConstraintGroup::SetErrorParams( const constraint_groupparams_t &pa
 	if ( !m_pLCS )
 		return;
 
-	m_pLCS->set_error_ticks( params.minErrorTicks );
-	m_pLCS->set_error_tolerance( ConvertDistanceToIVP(params.errorTolerance) );
+	//m_pLCS->set_error_ticks( params.minErrorTicks );
+	//m_pLCS->set_error_tolerance( ConvertDistanceToIVP(params.errorTolerance) );
 }
 
 void CPhysicsConstraintGroup::SolvePenetration( IPhysicsObject *pObj0, IPhysicsObject *pObj1 )
@@ -269,7 +269,7 @@ void CPhysicsConstraintGroup::SolvePenetration( IPhysicsObject *pObj0, IPhysicsO
 	{
 		CPhysicsObject *pPhys0 = static_cast<CPhysicsObject *>(pObj0);
 		CPhysicsObject *pPhys1 = static_cast<CPhysicsObject *>(pObj1);
-		m_pLCS->solve_penetration(pPhys0->GetObject(), pPhys1->GetObject());
+		//m_pLCS->solve_penetration(pPhys0->GetObject(), pPhys1->GetObject());
 	}
 }
 
@@ -283,9 +283,9 @@ CPhysicsConstraintGroup::~CPhysicsConstraintGroup()
 CPhysicsConstraintGroup::CPhysicsConstraintGroup( IVP_Environment *pEnvironment, const constraint_groupparams_t &group )
 {
 	hk_Local_Constraint_System_BP cs_bp;
-	cs_bp.m_n_iterations = group.additionalIterations;
-	cs_bp.m_minErrorTicks = group.minErrorTicks;
-	cs_bp.m_errorTolerance = ConvertDistanceToIVP(group.errorTolerance);
+	//cs_bp.m_n_iterations = group.additionalIterations;
+	//cs_bp.m_minErrorTicks = group.minErrorTicks;
+	//cs_bp.m_errorTolerance = ConvertDistanceToIVP(group.errorTolerance);
 	m_pLCS = new hk_Local_Constraint_System( static_cast<hk_Environment *>(pEnvironment), &cs_bp );
 	m_pLCS->set_client_data( (void *)this );
 }
@@ -486,8 +486,8 @@ public:
 		float forceLimit = ConvertDistanceToIVP( constraint.forceLimit );
 		bp.m_linear_strength = forceLimit > 0 ? forceLimit : UNBREAKABLE_BREAK_LIMIT;
 		bp.m_angular_strength = constraint.torqueLimit > 0 ? DEG2RAD(constraint.torqueLimit) : UNBREAKABLE_BREAK_LIMIT;
-		bp.m_bodyMassScale[0] = constraint.bodyMassScale[0] > 0 ? constraint.bodyMassScale[0] : 1.0f;
-		bp.m_bodyMassScale[1] = constraint.bodyMassScale[1] > 0 ? constraint.bodyMassScale[1] : 1.0f;;
+		//bp.m_bodyMassScale[0] = constraint.bodyMassScale[0] > 0 ? constraint.bodyMassScale[0] : 1.0f;
+		//bp.m_bodyMassScale[1] = constraint.bodyMassScale[1] > 0 ? constraint.bodyMassScale[1] : 1.0f;;
 		return new hk_Breakable_Constraint( pLcs, &bp );
 	}
 	void ReadBreakableConstraint( constraint_breakableparams_t &params ) const;
@@ -529,12 +529,12 @@ public:
 		{
 			int count = 0;
 			hk_Array<hk_Constraint *> list;
-			pLCS->get_constraints_in_system( list );
+			//pLCS->get_constraints_in_system( list );
 			Msg("System of %d constraints\n", list.length());
 			for ( hk_Array<hk_Constraint*>::iterator i = list.start(); list.is_valid(i); i = list.next(i) )
 			{
 				hk_Constraint *pConstraint = list.get_element(i);
-				Msg("\tConstraint %d) %s\n", count, pConstraint->get_constraint_type() );
+				//Msg("\tConstraint %d) %s\n", count, pConstraint->get_constraint_type() );
 				count++;
 			}
 		}
@@ -689,9 +689,9 @@ void CPhysicsConstraint::InitRagdoll( IVP_Environment *pEnvironment, CPhysicsCon
 	hk_Ragdoll_Constraint_BP *bp = (hk_Ragdoll_Constraint_BP  *)r_builder.get_blueprint();  // get non const bp
 	
 	int revAxisMapHK[3];
-	revAxisMapHK[bp->m_axisMap[0]] = 0;
-	revAxisMapHK[bp->m_axisMap[1]] = 1;
-	revAxisMapHK[bp->m_axisMap[2]] = 2;
+	//revAxisMapHK[bp->m_axisMap[0]] = 0;
+	//revAxisMapHK[bp->m_axisMap[1]] = 1;
+	//revAxisMapHK[bp->m_axisMap[2]] = 2;
 	for ( i = 0; i < 3; i++ )
 	{
 		// remap HL axis to IVP axis
@@ -750,9 +750,9 @@ void CPhysicsConstraint::InitHinge( IVP_Environment *pEnvironment, CPhysicsConst
 	builder.set_position_os( 1, TransformHLWorldToHavanaLocal( hinge.worldPosition, m_pObjAttached->GetObject() ) );
 
 	ConvertDirectionToIVP( hinge.referencePerpAxisDirection, axisPerpIVP_os );
-	builder.set_axis_perp_os( 0, vec(axisPerpIVP_os) );
+	//builder.set_axis_perp_os( 0, vec(axisPerpIVP_os) );
 	ConvertDirectionToIVP( hinge.attachedPerpAxisDirection, axisPerpIVP_os );
-	builder.set_axis_perp_os( 1, vec(axisPerpIVP_os) );
+	//builder.set_axis_perp_os( 1, vec(axisPerpIVP_os) );
 	
 	builder.set_tau( hinge.constraint.strength );
 	// torque is an impulse radians/sec * inertia
@@ -1000,7 +1000,7 @@ void CPhysicsConstraint::InitLength( IVP_Environment *pEnvironment, CPhysicsCons
 
 	// Get the current length of rope
 	stiff_bp.m_length = ConvertDistanceToIVP( length.totalLength );
-	stiff_bp.m_min_length = ConvertDistanceToIVP( length.minLength );
+	//stiff_bp.m_min_length = ConvertDistanceToIVP( length.minLength );
 
 	// set the anchor positions in object space
 	ConvertPositionToIVP( length.objectPosition[0], stiff_bp.m_translation_os_ks[0] );
@@ -1089,7 +1089,7 @@ void CPhysicsConstraint::SetAngularMotor( float rotSpeed, float maxAngularImpuls
 	if ( m_constraintType == CONSTRAINT_RAGDOLL && rotSpeed == 0 )
 	{
 		hk_Ragdoll_Constraint *pConstraint = (hk_Ragdoll_Constraint *)GetRealConstraint();
-		pConstraint->update_friction( ConvertAngleToIVP( maxAngularImpulse ) );
+		//pConstraint->update_friction( ConvertAngleToIVP( maxAngularImpulse ) );
 	}
 	else if ( m_constraintType == CONSTRAINT_HINGE )
 	{
@@ -1109,7 +1109,7 @@ void CPhysicsConstraint::UpdateRagdollTransforms( const matrix3x4_t &constraintT
 	ConvertHLLocalMatrixToHavanaLocal( constraintToAttached, os_ks_1 );
 
 	hk_Ragdoll_Constraint *pConstraint = (hk_Ragdoll_Constraint *)GetRealConstraint();
-	pConstraint->update_transforms( os_ks_0, os_ks_1 );
+	//pConstraint->update_transforms( os_ks_0, os_ks_1 );
 }
 
 bool CPhysicsConstraint::GetConstraintTransform( matrix3x4_t *pConstraintToReference, matrix3x4_t *pConstraintToAttached ) const
@@ -1119,11 +1119,11 @@ bool CPhysicsConstraint::GetConstraintTransform( matrix3x4_t *pConstraintToRefer
 		hk_Ragdoll_Constraint *pConstraint = (hk_Ragdoll_Constraint *)GetRealConstraint();
 		if ( pConstraintToReference )
 		{
-			ConvertHavanaLocalMatrixToHL( pConstraint->get_transform(0), *pConstraintToReference, NULL );
+			//ConvertHavanaLocalMatrixToHL( pConstraint->get_transform(0), *pConstraintToReference, NULL );
 		}
 		if ( pConstraintToAttached )
 		{
-			ConvertHavanaLocalMatrixToHL( pConstraint->get_transform(1), *pConstraintToAttached, NULL );
+			//ConvertHavanaLocalMatrixToHL( pConstraint->get_transform(1), *pConstraintToAttached, NULL );
 		}
 		return true;
 	}
@@ -1133,12 +1133,12 @@ bool CPhysicsConstraint::GetConstraintTransform( matrix3x4_t *pConstraintToRefer
 		Vector pos;
 		if ( pConstraintToReference )
 		{
-			ConvertPositionToHL( pConstraint->get_transform(0), pos );
+			//ConvertPositionToHL( pConstraint->get_transform(0), pos );
 			AngleMatrix( vec3_angle, pos, *pConstraintToReference );
 		}
 		if ( pConstraintToAttached )
 		{
-			ConvertPositionToHL( pConstraint->get_transform(1), pos );
+			//ConvertPositionToHL( pConstraint->get_transform(1), pos );
 			AngleMatrix( vec3_angle, pos, *pConstraintToAttached );
 		}
 		return true;
@@ -1148,11 +1148,11 @@ bool CPhysicsConstraint::GetConstraintTransform( matrix3x4_t *pConstraintToRefer
 		hk_Fixed_Constraint *pConstraint = (hk_Fixed_Constraint *)GetRealConstraint();
 		if ( pConstraintToReference )
 		{
-			ConvertHavanaLocalMatrixToHL( pConstraint->get_transform(0), *pConstraintToReference, NULL );
+			//ConvertHavanaLocalMatrixToHL( pConstraint->get_transform(0), *pConstraintToReference, NULL );
 		}
 		if ( pConstraintToAttached )
 		{
-			ConvertHavanaLocalMatrixToHL( pConstraint->get_transform(1), *pConstraintToAttached, NULL );
+			//ConvertHavanaLocalMatrixToHL( pConstraint->get_transform(1), *pConstraintToAttached, NULL );
 		}
 		return true;
 	}
@@ -1231,8 +1231,8 @@ void CPhysicsConstraint::ReadBreakableConstraint( constraint_breakableparams_t &
 		params.forceLimit = ConvertDistanceToHL( bp.m_linear_strength );
 		params.torqueLimit = RAD2DEG( bp.m_angular_strength );
 		params.strength = 1.0;
-		params.bodyMassScale[0] = bp.m_bodyMassScale[0];
-		params.bodyMassScale[1] = bp.m_bodyMassScale[1];
+		//params.bodyMassScale[0] = bp.m_bodyMassScale[0];
+		//params.bodyMassScale[1] = bp.m_bodyMassScale[1];
 		//Assert( m_HkLCS != NULL ); // this is allowed now although breaking inside an LCS won't work yet
 	}
 	else
@@ -1270,9 +1270,9 @@ void CPhysicsConstraint::WriteRagdoll( constraint_ragdollparams_t &ragdoll ) con
 	ConvertHavanaLocalMatrixToHL( ragdoll_bp.m_transform_os_ks[0], ragdoll.constraintToReference, m_pObjReference->GetObject() );
 	ConvertHavanaLocalMatrixToHL( ragdoll_bp.m_transform_os_ks[1], ragdoll.constraintToAttached, m_pObjAttached->GetObject() );
 	int revAxisMapHK[3];
-	revAxisMapHK[ragdoll_bp.m_axisMap[0]] = 0;
-	revAxisMapHK[ragdoll_bp.m_axisMap[1]] = 1;
-	revAxisMapHK[ragdoll_bp.m_axisMap[2]] = 2;
+	//revAxisMapHK[ragdoll_bp.m_axisMap[0]] = 0;
+	//revAxisMapHK[ragdoll_bp.m_axisMap[1]] = 1;
+	//revAxisMapHK[ragdoll_bp.m_axisMap[2]] = 2;
 	for ( int i = 0; i < 3; i ++ )
 	{
 		constraint_axislimit_t &ragdollAxis = ragdoll.axes[i];
@@ -1392,7 +1392,7 @@ void CPhysicsConstraint::WriteLength( constraint_lengthparams_t &length ) const
 	}
 
 	length.totalLength = ConvertDistanceToHL(stiff_bp.m_length);
-	length.minLength = ConvertDistanceToHL(stiff_bp.m_min_length);
+	//length.minLength = ConvertDistanceToHL(stiff_bp.m_min_length);
 }
 
 

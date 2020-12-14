@@ -145,7 +145,7 @@ void CFrictionSnapshot::GetSurfaceNormal( Vector &out )
 {
 	float sign[2] = {1,-1};
 	IVP_U_Float_Point normal;
-	IVP_Contact_Point_API::get_surface_normal_ws(const_cast<IVP_Contact_Point *>(m_pContactPoint), &normal );
+	//IVP_Contact_Point_API::get_surface_normal_ws(const_cast<IVP_Contact_Point *>(m_pContactPoint), &normal );
 	ConvertDirectionToHL( normal, out );
 	out *= sign[m_synapseIndex];
 	VectorNormalize(out);
@@ -153,7 +153,7 @@ void CFrictionSnapshot::GetSurfaceNormal( Vector &out )
 
 float CFrictionSnapshot::GetFrictionCoefficient()
 {
-	return m_pContactPoint->get_friction_factor();
+	return 1.0f;// m_pContactPoint->get_friction_factor();
 }
 
 float CFrictionSnapshot::GetNormalForce()
@@ -168,7 +168,7 @@ float CFrictionSnapshot::GetEnergyAbsorbed()
 
 void CFrictionSnapshot::RecomputeFriction()
 {
-	m_pContactPoint->recompute_friction();
+	//m_pContactPoint->recompute_friction();
 }
 
 void CFrictionSnapshot::ClearFrictionForce()
@@ -194,5 +194,5 @@ void DestroyFrictionSnapshot( IPhysicsFrictionSnapshot *pSnapshot )
 
 void DeleteAllFrictionPairs( IVP_Real_Object *pObject0, IVP_Real_Object *pObject1 )
 {
-	pObject0->unlink_contact_points_for_object( pObject1 );
+	//pObject0->unlink_contact_points_for_object( pObject1 );
 }

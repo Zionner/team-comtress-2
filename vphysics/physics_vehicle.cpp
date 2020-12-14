@@ -494,7 +494,7 @@ void CVehicleController::event_object_deleted( IVP_Event_Object *pEvent )
 {
 	// the car system's constraint solver is going to delete itself now, so NULL the car system.
 
-	m_pCarSystem->event_object_deleted( pEvent );	
+	//m_pCarSystem->event_object_deleted( pEvent );	
 	m_pCarSystem = NULL;
 	ShutdownCarSystem();
 }
@@ -636,7 +636,7 @@ void CVehicleController::CreateIVPObjects( )
 		break;
 
 	case VEHICLE_TYPE_AIRBOAT_RAYCAST: 
-		m_pCarSystem = new CPhysics_Airboat( m_pEnv->GetIVPEnvironment(), &ivpVehicleData, m_pGameTrace );
+		//m_pCarSystem = new CPhysics_Airboat( m_pEnv->GetIVPEnvironment(), &ivpVehicleData, m_pGameTrace );
 		break; 
 	}
 
@@ -820,7 +820,7 @@ float CVehicleController::UpdateBooster( float dt )
 //-----------------------------------------------------------------------------
 bool CVehicleController::IsBoosting( void )
 {
-	return ( m_pCarSystem->get_booster_time_to_go() > 0.0f );
+	return false;// (m_pCarSystem->get_booster_time_to_go() > 0.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -885,7 +885,7 @@ void CVehicleController::UpdateSteering( const vehicle_controlparams_t &controls
 {
    // Steering - IVP steering is in radians.
     float flSteeringAngle = CalcSteering( flDeltaTime, flSpeed, controls.steering, controls.bAnalogSteering );
-    m_pCarSystem->do_steering( DEG2RAD( flSteeringAngle ), controls.bAnalogSteering );
+    //m_pCarSystem->do_steering( DEG2RAD( flSteeringAngle ), controls.bAnalogSteering );
 	m_currentState.steeringAngle = flSteeringAngle;
 }
 
@@ -959,7 +959,7 @@ void CVehicleController::UpdatePowerslide( const vehicle_controlparams_t &contro
 			flRearAccel = powerSlideAccel * powerSlide;
 		}
 	}
-	m_pCarSystem->set_powerslide( flFrontAccel, flRearAccel );
+	//m_pCarSystem->set_powerslide( flFrontAccel, flRearAccel );
 }
 
 //-----------------------------------------------------------------------------
@@ -1388,9 +1388,9 @@ void CVehicleController::GetCarSystemDebugData( vehicle_debugcarsystem_t &debugC
 			                                            ( debugCarSystem.vecWheelRaycasts[iWheel][1] - debugCarSystem.vecWheelRaycasts[iWheel][0] ) );
 	}
 
-	ConvertPositionToHL( carSystemDebugData.backActuatorLeft, debugCarSystem.vecAxlePos[0] );
-	ConvertPositionToHL( carSystemDebugData.backActuatorRight, debugCarSystem.vecAxlePos[1] );
-	ConvertPositionToHL( carSystemDebugData.frontActuatorLeft, debugCarSystem.vecAxlePos[2] );
+	//ConvertPositionToHL( carSystemDebugData.backActuatorLeft, debugCarSystem.vecAxlePos[0] );
+	//ConvertPositionToHL( carSystemDebugData.backActuatorRight, debugCarSystem.vecAxlePos[1] );
+	//ConvertPositionToHL( carSystemDebugData.frontActuatorLeft, debugCarSystem.vecAxlePos[2] );
 	// vecAxlePos only has three elements so this line is illegal. The mapping of actuators
 	// to axles seems dodgy anyway.
 	//ConvertPositionToHL( carSystemDebugData.frontActuatorRight, debugCarSystem.vecAxlePos[3] );

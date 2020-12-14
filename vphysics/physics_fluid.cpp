@@ -86,7 +86,7 @@ float CPhysicsFluidController::GetDensity() const
 
 void CPhysicsFluidController::WakeAllSleepingObjects() 
 {
-	GetIVPObject()->get_controller_phantom()->wake_all_sleeping_objects();
+	//GetIVPObject()->get_controller_phantom()->wake_all_sleeping_objects();
 }
 
 int CPhysicsFluidController::GetContents() const

@@ -128,7 +128,14 @@ static unsigned short GetPackedIndex( const IVP_Compact_Ledge *pLedge, const IVP
 	const IVP_Compact_Poly_Point *RESTRICT pPoints = pLedge->get_point_array();
 	const IVP_Compact_Triangle *RESTRICT pTri = pLedge->get_first_triangle();
 	const IVP_Compact_Edge *RESTRICT pEdge = pTri->get_edge( 0 );
+
+#if defined(_WIN64)
+	__int64 best = pEdge->get_start_point_index();
+#else
 	int best = pEdge->get_start_point_index();
+#endif
+
+
 	float bestDot = pPoints[best].dot_product( &dir );
 	int triCount = pLedge->get_n_triangles();
 	const IVP_Compact_Triangle *RESTRICT pBestTri = pTri;
@@ -139,11 +146,20 @@ static unsigned short GetPackedIndex( const IVP_Compact_Ledge *pLedge, const IVP
 	{
 		// get the index to the end vert of this edge (start vert on next edge)
 		pEdge = pEdge->get_prev();
+
+#if defined(_WIN64)
+		__int64 stopVert = pEdge->get_start_point_index();
+
+		// loop through the verts that can be reached along edges from this vert
+		// stop if you get back to the one you're starting on.
+		__int64 vert = stopVert;
+#else
 		int stopVert = pEdge->get_start_point_index();
 
 		// loop through the verts that can be reached along edges from this vert
 		// stop if you get back to the one you're starting on.
 		int vert = stopVert;
+#endif
 		do
 		{
 			float dot = pPoints[vert].dot_product( &dir );
@@ -164,8 +180,14 @@ static unsigned short GetPackedIndex( const IVP_Compact_Ledge *pLedge, const IVP
 			break;
 	}
 
+#if defined(_WIN64)
+	__int64 triIndex = pBestTri - pLedge->get_first_triangle();
+	__int64 edgeIndex = 0;
+#else
 	int triIndex = pBestTri - pLedge->get_first_triangle();
 	int edgeIndex = 0;
+#endif
+
 	// just do a search for the edge containing this vert instead of storing it along the way
 	for ( i = 0; i < 3; i++ )
 	{

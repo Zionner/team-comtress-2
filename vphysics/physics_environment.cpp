@@ -144,7 +144,7 @@ public:
 		else
 		{
 			IVP_U_Float_Point normal;
-			IVP_Contact_Point_API::get_surface_normal_ws(const_cast<IVP_Contact_Point *>(m_pPoint), &normal);
+			//IVP_Contact_Point_API::get_surface_normal_ws(const_cast<IVP_Contact_Point *>(m_pPoint), &normal);
 			ConvertDirectionToHL( normal, out );
 			out *= m_sign;
 		}
@@ -902,7 +902,7 @@ public:
 			}
 		}
 
-		IVP_Anomaly_Manager::inter_penetration( mindist, ivp0, ivp1, speedChange );
+		//IVP_Anomaly_Manager::inter_penetration( mindist, ivp0, ivp1, speedChange );
 	}
 
 	// return true if object should be temp. freezed
@@ -1259,8 +1259,8 @@ void CPhysicsEnvironment::SetGravity( const Vector& gravityVector )
 	ConvertPositionToIVP( gravityVector, gravity );
     m_pPhysEnv->set_gravity( &gravity );
 	// BUGBUG: global collision tolerance has a constant that depends on gravity.
-	m_pPhysEnv->set_global_collision_tolerance( m_pPhysEnv->get_global_collision_tolerance(), gravity.real_length() );
-	DevMsg(1,"Set Gravity %.1f (%.3f tolerance)\n", gravityVector.Length(), IVP2HL(m_pPhysEnv->get_global_collision_tolerance()) );
+	//m_pPhysEnv->set_global_collision_tolerance( m_pPhysEnv->get_global_collision_tolerance(), gravity.real_length() );
+	//DevMsg(1,"Set Gravity %.1f (%.3f tolerance)\n", gravityVector.Length(), IVP2HL(m_pPhysEnv->get_global_collision_tolerance()) );
 }
 
 
@@ -1403,7 +1403,7 @@ bool CPhysicsEnvironment::TransferObject( IPhysicsObject *pObject, IPhysicsEnvir
 	/*int iActiveIndex = pDest->m_pSleepEvents->m_activeObjects.AddToTail( pPhysics );
 	pPhysics->SetActiveIndex( iActiveIndex );*/
 	
-	pDest->m_pPhysEnv->force_psi_on_next_simulation(); //avoids an object pause
+	//pDest->m_pPhysEnv->force_psi_on_next_simulation(); //avoids an object pause
 
 	if( pController )
 	{
@@ -1540,7 +1540,7 @@ void CPhysicsEnvironment::Simulate( float deltaTime )
 	{
 		m_pSleepEvents->ProcessActiveObjects( m_pPhysEnv, m_pCollisionListener->GetHandler() );
 	}
-	VISUALIZE_COLLISIONS();
+	//VISUALIZE_COLLISIONS();
 	VirtualMeshPSI();
 	GetNextFrameTime();
 }
@@ -1904,9 +1904,9 @@ void CPhysicsEnvironment::GetPerformanceSettings( physics_performanceparams_t *p
 		pOutput->maxVelocity = ConvertDistanceToHL( limits->max_velocity );
 		pOutput->maxAngularVelocity = ConvertAngleToHL(limits->max_angular_velocity_per_psi) * m_pPhysEnv->get_inv_delta_PSI_time();
 		pOutput->maxCollisionsPerObjectPerTimestep = limits->max_collisions_per_psi;
-		pOutput->maxCollisionChecksPerTimestep = limits->max_collision_checks_per_psi;
-		pOutput->minFrictionMass = limits->min_friction_mass;
-		pOutput->maxFrictionMass = limits->max_friction_mass;
+		//pOutput->maxCollisionChecksPerTimestep = limits->max_collision_checks_per_psi;
+		//pOutput->minFrictionMass = limits->min_friction_mass;
+		//pOutput->maxFrictionMass = limits->max_friction_mass;
 	}
 
 	IVP_Range_Manager *range = m_pPhysEnv->get_range_manager();
@@ -1928,10 +1928,10 @@ void CPhysicsEnvironment::SetPerformanceSettings( const physics_performanceparam
 		// UNDONE: Expose these values for tuning
 		limits->max_velocity = ConvertDistanceToIVP( pSettings->maxVelocity );
 		limits->max_collisions_per_psi = pSettings->maxCollisionsPerObjectPerTimestep;
-		limits->max_collision_checks_per_psi = pSettings->maxCollisionChecksPerTimestep;
+		//limits->max_collision_checks_per_psi = pSettings->maxCollisionChecksPerTimestep;
 		limits->max_angular_velocity_per_psi = ConvertAngleToIVP(pSettings->maxAngularVelocity) * m_pPhysEnv->get_delta_PSI_time();
-		limits->min_friction_mass = clamp(pSettings->minFrictionMass, 1.0f, VPHYSICS_MAX_MASS );
-		limits->max_friction_mass = clamp(pSettings->maxFrictionMass, 1.0f, VPHYSICS_MAX_MASS );
+		//limits->min_friction_mass = clamp(pSettings->minFrictionMass, 1.0f, VPHYSICS_MAX_MASS );
+		//limits->max_friction_mass = clamp(pSettings->maxFrictionMass, 1.0f, VPHYSICS_MAX_MASS );
 	}
 
 	IVP_Range_Manager *range = m_pPhysEnv->get_range_manager();
