@@ -1821,13 +1821,23 @@ int ByteswapMDLFile( void *pDestBase, void *pSrcBase, const int fileSize )
 	// While swapping, kill off unwanted textures by name
 	SET_INDEX_POINTERS_FIXUP( pData, pHdr, textureindex )
 	DECLARE_OBJECT_POINTERS( pTexture, pData, mstudiotexture_t )
-	int textureCt = SrcNative( &pHdr->numtextures );
 	int nameOffset = 0;
-	for ( int i = 0; i < SrcNative( &pHdr->numtextures ); ++i, ++pTexture, ++pTextureSrc )
+
+#if defined(_WIN64)
+	__int64 textureCt = SrcNative(&pHdr->numtextures);
+	for (__int64 i = 0; i < SrcNative(&pHdr->numtextures); ++i, ++pTexture, ++pTextureSrc)
+#else
+	int textureCt = SrcNative(&pHdr->numtextures);
+	for (int i = 0; i < SrcNative(&pHdr->numtextures); ++i, ++pTexture, ++pTextureSrc)
+#endif
 	{
 		WriteObjects<mstudiotexture_t>( pTextureDest, pTextureSrc );
 
-		int destnameindex = SrcNative( &pTexture->sznameindex ) + nameOffset;
+#if defined(_WIN64)
+		__int64 destnameindex = SrcNative(&pTexture->sznameindex) + nameOffset;
+#else
+		int destnameindex = SrcNative(&pTexture->sznameindex) + nameOffset;
+#endif
 		pTextureDest->sznameindex = DestNative( &destnameindex );
 		char *pName = (char*)pTexture + SrcNative( &pTexture->sznameindex );
 #if 0 // Undone: Killing textures here can cause crashes at runtime.
@@ -2522,14 +2532,14 @@ BEGIN_BYTESWAP_DATADESC( studiohdr_t )
 	DEFINE_FIELD( contents, FIELD_INTEGER ),
 	DEFINE_FIELD( numincludemodels, FIELD_INTEGER ),
 	DEFINE_INDEX( includemodelindex, FIELD_INTEGER ),
-	DEFINE_FIELD( virtualModel, FIELD_INTEGER ),				// void*
+	DEFINE_FIELD( virtualModel, FIELD_CLASSPTR ),				// void*
 	DEFINE_INDEX( szanimblocknameindex, FIELD_INTEGER ),	
 	DEFINE_FIELD( numanimblocks, FIELD_INTEGER ),
 	DEFINE_INDEX( animblockindex, FIELD_INTEGER ),
-	DEFINE_FIELD( animblockModel, FIELD_INTEGER ),				// void*
+	DEFINE_FIELD( animblockModel, FIELD_CLASSPTR),				// void*
 	DEFINE_INDEX( bonetablebynameindex, FIELD_INTEGER ),
-	DEFINE_FIELD( pVertexBase, FIELD_INTEGER ),					// void*
-	DEFINE_FIELD( pIndexBase, FIELD_INTEGER ),					// void*
+	DEFINE_FIELD( pVertexBase, FIELD_CLASSPTR),					// void*
+	DEFINE_FIELD( pIndexBase, FIELD_CLASSPTR),					// void*
 	DEFINE_FIELD( constdirectionallightdot, FIELD_CHARACTER ),	// byte
 	DEFINE_FIELD( rootLOD, FIELD_CHARACTER ),					// byte
 	DEFINE_FIELD( numAllowedRootLODs, FIELD_CHARACTER ),		// byte
@@ -2901,12 +2911,12 @@ BEGIN_BYTESWAP_DATADESC( mstudiomodel_t )
 	DEFINE_FIELD( numeyeballs, FIELD_INTEGER ),
 	DEFINE_INDEX( eyeballindex, FIELD_INTEGER ),
 	DEFINE_EMBEDDED( vertexdata ),
-	DEFINE_ARRAY( unused, FIELD_INTEGER, 8 ),
+	//DEFINE_ARRAY( unused, FIELD_INTEGER, 1 ),
 END_BYTESWAP_DATADESC()
 
 BEGIN_BYTESWAP_DATADESC( mstudio_modelvertexdata_t )
-	DEFINE_FIELD( pVertexData, FIELD_INTEGER ),		// void*
-	DEFINE_FIELD( pTangentData, FIELD_INTEGER ),	// void*
+	DEFINE_FIELD( pVertexData, FIELD_CLASSPTR ),		// void*
+	DEFINE_FIELD( pTangentData, FIELD_CLASSPTR),	// void*
 END_BYTESWAP_DATADESC()
 
 BEGIN_BYTESWAP_DATADESC( mstudioflexdesc_t )
@@ -2981,11 +2991,11 @@ BEGIN_BYTESWAP_DATADESC( mstudiomesh_t )
 	DEFINE_FIELD( meshid, FIELD_INTEGER ),
 	DEFINE_FIELD( center, FIELD_VECTOR ),
 	DEFINE_EMBEDDED( vertexdata ),
-	DEFINE_ARRAY( unused, FIELD_INTEGER, 8 ),
+	DEFINE_ARRAY( unused, FIELD_INTEGER, 1 ),
 END_BYTESWAP_DATADESC()
 
 BEGIN_BYTESWAP_DATADESC( mstudio_meshvertexdata_t )
-	DEFINE_FIELD( modelvertexdata, FIELD_INTEGER ),	// mstudio_modelvertexdata_t*
+	DEFINE_FIELD( modelvertexdata, FIELD_CLASSPTR ),	// mstudio_modelvertexdata_t*
 	DEFINE_ARRAY( numLODVertexes, FIELD_INTEGER, MAX_NUM_LODS ),
 END_BYTESWAP_DATADESC()
 
@@ -3024,7 +3034,7 @@ BEGIN_BYTESWAP_DATADESC( mstudioflex_t )
 	DEFINE_FIELD( flexpair, FIELD_INTEGER ),
 	DEFINE_FIELD( vertanimtype, FIELD_CHARACTER ),
 	DEFINE_ARRAY( unusedchar, FIELD_CHARACTER, 3 ),
-	DEFINE_ARRAY( unused, FIELD_INTEGER, 6 ),
+	DEFINE_ARRAY( unused, FIELD_INTEGER, 3 ),
 END_BYTESWAP_DATADESC()
 
 BEGIN_BYTESWAP_DATADESC( mstudiovertanim_t )

@@ -21,6 +21,14 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#if defined(_WIN64)
+#define CUTLSTRING_OFFSET 4
+#define CUTLBINARYBLOCK_OFFSET 8
+#else
+#define CUTLSTRING_OFFSET 0
+#define CUTLBINARYBLOCK_OFFSET 0
+#endif
+
 //-----------------------------------------------------------------------------
 // helper class to allow CDmeHandle access to g_pDataModelImp
 //-----------------------------------------------------------------------------
@@ -289,7 +297,7 @@ int CDmElement::EstimateMemoryUsage( CUtlHash< DmElementHandle_t > &visited, Tra
 	int nDataModelUsage = g_pDataModelImp->EstimateMemoryOverhead( );
 	int nReferenceUsage = m_ref.EstimateMemoryOverhead();
 	CDmElement *pElement = g_pDataModel->GetElement( m_ref.m_hElement );
-	int nInternalUsage = sizeof( *this ) - sizeof( CUtlString );	// NOTE: The utlstring is the 'name' attribute var
+	int nInternalUsage = sizeof( *this ) - sizeof( CUtlString ) - CUTLSTRING_OFFSET;	// NOTE: The utlstring is the 'name' attribute var
 	int nOuterUsage = pElement->AllocatedSize() - nInternalUsage;
 	Assert( nOuterUsage >= 0 );
 

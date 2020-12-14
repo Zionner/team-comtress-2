@@ -239,7 +239,12 @@ const int NO_ASYNC = CUtlLinkedList< AsyncInfo_t >::InvalidIndex();
 
 //-------------------------------------
 
-CUtlMap<int, int> g_AsyncInfoMap( DefLessFunc( int ) );
+#if defined(_WIN64)
+CUtlMap<__int64, __int64> g_AsyncInfoMap(DefLessFunc(__int64));
+#else
+CUtlMap<int, int> g_AsyncInfoMap(DefLessFunc(int));
+#endif
+
 CThreadFastMutex g_AsyncInfoMapMutex;
 
 inline int MakeAsyncInfoKey( MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock )
@@ -248,7 +253,11 @@ inline int MakeAsyncInfoKey( MDLHandle_t hModel, MDLCacheDataType_t type, int iA
 	return ( ( ( (int)hModel) << 16 ) | ( (int)type << 13 ) | iAnimBlock );
 }
 
-inline int GetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock = 0 )
+#if defined(_WIN64)
+inline __int64 GetAsyncInfoIndex(MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock = 0)
+#else
+inline int GetAsyncInfoIndex(MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock = 0)
+#endif
 {
 	AUTO_LOCK( g_AsyncInfoMapMutex );
 	int key = MakeAsyncInfoKey( hModel, type, iAnimBlock );
@@ -260,7 +269,11 @@ inline int GetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int i
 	return g_AsyncInfoMap[i];
 }
 
-inline int SetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock, int index )
+#if defined(_WIN64)
+inline __int64 SetAsyncInfoIndex(MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock, __int64 index)
+#else
+inline int SetAsyncInfoIndex(MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock, int index)
+#endif
 {
 	AUTO_LOCK( g_AsyncInfoMapMutex );
 	Assert( index == NO_ASYNC || GetAsyncInfoIndex( hModel, type, iAnimBlock ) == NO_ASYNC );
@@ -277,7 +290,11 @@ inline int SetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int i
 	return index;
 }
 
-inline int SetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int index )
+#if defined(_WIN64)
+inline __int64 SetAsyncInfoIndex(MDLHandle_t hModel, MDLCacheDataType_t type, __int64 index)
+#else
+inline int SetAsyncInfoIndex(MDLHandle_t hModel, MDLCacheDataType_t type, int index)
+#endif
 {
 	return SetAsyncInfoIndex( hModel, type, 0, index );
 }
@@ -507,7 +524,12 @@ private:
 	bool BuildHardwareData( MDLHandle_t handle, studiodata_t *pStudioData, studiohdr_t *pStudioHdr, OptimizedModel::FileHeader_t *pVtxHdr );
 	void ConvertFlexData( studiohdr_t *pStudioHdr );
 
-	int ProcessPendingAsync( int iAsync );
+#if defined(_WIN64)
+	int ProcessPendingAsync(__int64 iAsync);
+#else
+	int ProcessPendingAsync(int iAsync);
+#endif
+
 	void ProcessPendingAsyncs( MDLCacheDataType_t type = MDLCACHE_NONE );
 	bool ClearAsync( MDLHandle_t handle, MDLCacheDataType_t type, int iAnimBlock, bool bAbort = false );
 
@@ -1004,7 +1026,11 @@ void CMDLCache::UnserializeVCollide( MDLHandle_t handle, bool synchronousLoad )
 	// FIXME: Should the vcollde be played into cacheable memory?
 	studiodata_t *pStudioData = m_MDLDict[handle];
 
-	int iAsync = GetAsyncInfoIndex( handle, MDLCACHE_VCOLLIDE );
+#if defined(_WIN64)
+	__int64 iAsync = GetAsyncInfoIndex(handle, MDLCACHE_VCOLLIDE);
+#else
+	int iAsync = GetAsyncInfoIndex(handle, MDLCACHE_VCOLLIDE);
+#endif
 
 	if ( iAsync == NO_ASYNC )
 	{
@@ -3037,7 +3063,11 @@ bool CMDLCache::ProcessDataIntoCache( MDLHandle_t handle, MDLCacheDataType_t typ
 //	=0: pending
 //	>0:	completed
 //-----------------------------------------------------------------------------
-int CMDLCache::ProcessPendingAsync( int iAsync )
+#if defined(_WIN64)
+int CMDLCache::ProcessPendingAsync(__int64 iAsync)
+#else
+int CMDLCache::ProcessPendingAsync(int iAsync)
+#endif
 {
 	if ( !ThreadInMainThread() )
 	{
@@ -3049,14 +3079,17 @@ int CMDLCache::ProcessPendingAsync( int iAsync )
 	void *pData = NULL;
 	int nBytesRead = 0;
 
-	AsyncInfo_t *pInfo;
+	AUTO_LOCK(m_AsyncMutex);
+	AsyncInfo_t* pInfo = nullptr;
 	{
 		AUTO_LOCK( m_AsyncMutex );
 		pInfo = &m_PendingAsyncs[iAsync];
 	}
+
 	Assert( pInfo->hControl );
 
 	FSAsyncStatus_t status = g_pFullFileSystem->AsyncGetResult( pInfo->hControl, &pData, &nBytesRead );
+
 	if ( status == FSASYNC_STATUS_PENDING )
 	{
 		return 0;
@@ -3148,7 +3181,12 @@ void CMDLCache::ProcessPendingAsyncs( MDLCacheDataType_t type )
 //-----------------------------------------------------------------------------
 bool CMDLCache::ClearAsync( MDLHandle_t handle, MDLCacheDataType_t type, int iAnimBlock, bool bAbort )
 {
-	int iAsyncInfo = GetAsyncInfoIndex( handle, type, iAnimBlock );
+#if defined(_WIN64)
+	__int64 iAsyncInfo = GetAsyncInfoIndex(handle, type, iAnimBlock);
+#else
+	int iAsyncInfo = GetAsyncInfoIndex(handle, type, iAnimBlock);
+#endif
+	
 	if ( iAsyncInfo != NO_ASYNC )
 	{
 		AsyncInfo_t *pInfo;
