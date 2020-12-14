@@ -82,7 +82,12 @@ void IVP_U_Memory::end_memory_transaction()
 
 //warning: dependency with function neuer_sp_block
 inline void *IVP_U_Memory::align_to_next_adress(void *p) {
-    long adress=(long)p;
+#if defined(_WIN64)
+	__int64 adress = (__int64)p;
+#elif defined(_WIN32)
+	long adress = (long)p;
+#endif
+    
     adress += IVU_MEM_ALIGN-1;
     adress  =adress & IVU_MEM_MASK;
     return (void*)adress;

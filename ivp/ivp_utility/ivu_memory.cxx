@@ -119,7 +119,8 @@ struct IVP_Aligned_Memory {
     void *back_link;
 };
 
-void *ivp_malloc_aligned(int size, int alignment){
+void* ivp_malloc_aligned(int size, int alignment) {
+
 #if defined(SUN__)
     return memalign( alignment, size);
 #else    
@@ -128,7 +129,13 @@ void *ivp_malloc_aligned(int size, int alignment){
     IVP_Aligned_Memory *data = (IVP_Aligned_Memory*)p_malloc( (unsigned int) size);
     data->magic_number = IVP_MEMORY_MAGIC;
     
-    void *ret = (void *)((((long)data) + alignment + sizeof(IVP_Aligned_Memory) - 1) & (-alignment));
+#if defined(_WIN64)
+	__int64 alignment64 = alignment;
+	void* ret = (void*)((((__int64)data) + alignment + sizeof(IVP_Aligned_Memory) - 1) & (-alignment64));
+#elif defined(_WIN32)
+	void* ret = (void*)((((long)data) + alignment + sizeof(IVP_Aligned_Memory) - 1) & (-alignment));
+#endif
+    
     ((void **)ret)[-1] = (void *)data;
     return ret;
 #endif    

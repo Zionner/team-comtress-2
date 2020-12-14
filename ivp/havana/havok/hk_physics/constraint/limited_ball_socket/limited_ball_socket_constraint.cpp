@@ -25,7 +25,7 @@ class hk_Limited_Ball_Socket_Work
 {
 	public:
 
-#ifdef HK_ARCH_PPC
+#if defined(HK_ARCH_PPC) || defined(_WIN64)
 		static inline void *operator new (size_t size, void *addr){
 			return addr;
 		}

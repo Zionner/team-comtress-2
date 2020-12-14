@@ -297,7 +297,12 @@ public:
 class IVP_MM_CMP {
 public:
     static inline int calc_hash_index( IVP_MM_CMP_Key * o){
-	int x = (int)o->ledge[0] ^ ( int(o->ledge[1])* 75 );
+#if defined(_WIN64)
+		__int64 x = (__int64)o->ledge[0] ^ (__int64(o->ledge[1]) * 75);
+#elif defined(_WIN32)
+		int x = (int)o->ledge[0] ^ (int(o->ledge[1]) * 75);
+#endif
+	
 	return x + 1023 * (x>>8);
     }
 
@@ -305,7 +310,12 @@ public:
     static inline int calc_hash_index( IVP_Collision *c, IVP_MM_CMP_Key * /*ref_key*/){
 	const IVP_Compact_Ledge *ledge[2];
 	c->get_ledges(ledge);
-	int x = (int)ledge[0] ^ ( int(ledge[1])* 75 );
+#if defined(_WIN64)
+	__int64 x = (__int64)ledge[0] ^ (__int64(ledge[1]) * 75);
+#elif defined(_WIN32)
+	int x = (int)ledge[0] ^ (int(ledge[1]) * 75);
+#endif
+	
 	return x + 1023 * (x>>8);
     }
 
@@ -614,7 +624,12 @@ void IVP_Mindist_Manager::insert_and_recalc_phantom_mindist( IVP_Mindist *new_mi
 class IVP_OO_CMP {
 public:
     static inline int calc_hash_index( IVP_Real_Object * o){
-	int x = (int)o;
+#if defined(_WIN64)
+		__int64 x = (__int64)o;
+#elif defined(_WIN32)
+		int x = (int)o;
+#endif
+
 	return x + 1023 * (x>>8);
     }
 
@@ -622,7 +637,11 @@ public:
     static inline int calc_hash_index( IVP_Collision *c, IVP_Real_Object * con){
 	IVP_Real_Object *objects[2];
 	c->get_objects(objects);
+#if defined(_WIN64)
+	__int64 x = __int64(objects[0]) ^ __int64(objects[1]) ^ __int64(con);  // take other object (trick to avoid if)
+#elif defined(_WIN32)
 	int x = int(objects[0]) ^ int(objects[1]) ^ int(con);  // take other object (trick to avoid if)
+#endif
 	IVP_ASSERT( objects[0] == con || objects[1] == con );
 	return x + 1023 * (x>>8);
     }
@@ -873,7 +892,12 @@ void IVP_Mindist::update_exact_mindist_events(IVP_BOOL allow_hull_conversion, IV
 		IVP_Debug_Manager *dm=get_environment()->get_debug_manager();
 		if(dm->file_out_impacts) 
 		{
-			fprintf(dm->out_deb_file,"doing_mindist_events %lx at %f\n",0x0000ffff&(long)this,get_environment()->get_current_time().get_time());
+#if defined(_WIN64)
+			fprintf(dm->out_deb_file, "doing_mindist_events %lx at %f\n", 0x0000ffff & (__int64)this, get_environment()->get_current_time().get_time());
+#elif defined(_WIN32)
+			fprintf(dm->out_deb_file, "doing_mindist_events %lx at %f\n", 0x0000ffff & (long)this, get_environment()->get_current_time().get_time());
+#endif
+			
 		}
 	}
 	

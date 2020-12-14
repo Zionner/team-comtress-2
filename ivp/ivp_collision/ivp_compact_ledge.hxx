@@ -132,6 +132,7 @@ class IVP_Compact_Ledge {
     friend class IVP_SurfaceBuilder_Ledge_Soup;
     friend class IVP_SurfaceBuilder_Mopp;
     friend class IVP_GridBuilder_Array;
+    friend class CVPhysicsVirtualMeshWriter;
 private:
     int c_point_offset; // byte offset from 'this' to (ledge) point array
     union {
@@ -145,6 +146,7 @@ private:
     short n_triangles;
     short for_future_use;
 
+public:
 	inline void set_offset_ledge_points(int offset) { 
 		IVP_ASSERT( (offset & 15) == 0 );
 		c_point_offset=offset; 
@@ -249,7 +251,12 @@ public:
 const IVP_Compact_Triangle *IVP_Compact_Edge::get_triangle() const
 {
     // mask 4 lowest adress bits to receive triangle
-    return (IVP_Compact_Triangle *)(((unsigned int)this) & 0xfffffff0);
+#if defined(_WIN64)
+    return (IVP_Compact_Triangle*)(((unsigned __int64)this) & 0xfffffffffffffff0);
+#elif defined(_WIN32)
+    return (IVP_Compact_Triangle*)(((unsigned int)this) & 0xfffffff0);
+#endif
+    
 }
 
 
@@ -271,30 +278,55 @@ const IVP_Compact_Poly_Point *IVP_Compact_Edge::get_start_point(const IVP_Compac
 
 const IVP_Compact_Edge *IVP_Compact_Edge::get_next() const
 {
+#if defined(_WIN64)
+    __int64 idx = (__int64)(((unsigned __int64)this) & 0x0c);
+#elif defined(_WIN32)
     int idx = (int)(((unsigned int)this) & 0x0c);
+#endif
+    
     return (IVP_Compact_Edge *)(((char *)this) + ((int *)(((char *)this->next_table)+idx))[0]);
 }
 
 int IVP_Compact_Edge::get_edge_index()const{
-  int idx = (int((((unsigned int)this) & 0x0c))>>2) - 1;
+#if defined(_WIN64)
+    __int64 idx = (__int64((((unsigned __int64)this) & 0x0c)) >> 2) - 1;
+#elif defined(_WIN32)
+    int idx = (int((((unsigned int)this) & 0x0c)) >> 2) - 1;
+#endif
+  
     return idx;
 }
 
 IVP_Compact_Edge *IVP_Compact_Edge::get_next()
 {
+#if defined(_WIN64)
+    __int64 idx = (__int64)(((unsigned __int64)this) & 0x0c);
+#elif defined(_WIN32)
     int idx = (int)(((unsigned int)this) & 0x0c);
+#endif
+    
     return (IVP_Compact_Edge *)(((char *)this) + ((int *)(((char *)this->next_table)+idx))[0]);
 }
 
 const IVP_Compact_Edge *IVP_Compact_Edge::get_prev() const
 {
+#if defined(_WIN64)
+    __int64 idx = (__int64)(((unsigned __int64)this) & 0x0c);
+#elif defined(_WIN32)
     int idx = (int)(((unsigned int)this) & 0x0c);
+#endif
+    
     return (IVP_Compact_Edge *)(((char *)this) + ((int *)(((char *)this->prev_table)+idx))[0]);
 }
 
 IVP_Compact_Edge *IVP_Compact_Edge::get_prev() 
 {
+#if defined(_WIN64)
+    __int64 idx = (__int64)(((unsigned __int64)this) & 0x0c);
+#elif defined(_WIN32)
     int idx = (int)(((unsigned int)this) & 0x0c);
+#endif
+    
     return (IVP_Compact_Edge *)(((char *)this) + ((int *)(((char *)this->prev_table)+idx))[0]);
 }
 

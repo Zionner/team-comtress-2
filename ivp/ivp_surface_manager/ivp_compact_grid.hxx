@@ -67,7 +67,12 @@ public:
      *  Description:    INTERNAL METHOD
      *****************************************************************************/
     const IVP_Compact_Grid_Element *get_grid_elements() {
-    	char *base = (char *)(((int)this) + this->offset_grid_elements);
+#if defined(_WIN64)
+        char* base = (char*)(((__int64)this) + this->offset_grid_elements);
+#elif defined(_WIN32)
+        char* base = (char*)(((int)this) + this->offset_grid_elements);
+#endif
+    	
 	return((const IVP_Compact_Grid_Element *)base);
     }
 
@@ -76,7 +81,12 @@ public:
      *  Description:    INTERNAL METHOD
      *****************************************************************************/
     const IVP_Compact_Ledge *get_compact_ledge_at(int i) {
-    	char *base = (char *)(((int)this) + this->offset_compact_ledge_array[i]);
+#if defined(_WIN64)
+        char* base = (char*)(((__int64)this) + this->offset_compact_ledge_array[i]);
+#elif defined(_WIN32)
+        char* base = (char*)(((int)this) + this->offset_compact_ledge_array[i]);
+#endif
+    	
 	return((const IVP_Compact_Ledge *)base);
     }
 

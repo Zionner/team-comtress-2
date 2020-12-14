@@ -474,7 +474,12 @@ void IVP_SurfaceBuilder_Ledge_Soup::cluster_spheres_bottomup(IVP_DOUBLE threshol
 		
 		// retrieve smallest mothersphere (if available!)
 		IVV_Cluster_Min_Hash_Key key;
+#if defined(_WIN64)
+		key.key = (__int64)cluster_min_hash.find_min_elem();
+#elif defined(_WIN32)
 		key.key = (int)cluster_min_hash.find_min_elem();
+#endif
+		
 		if ( key.key != (unsigned int)NULL ) { // verify that there were at least 2 spheres in vector and a new minimal sphere could be generated!
 		    //IVP_DOUBLE radius = cluster_min_hash->find_min_value(); // radius of minimal sphere
 		    int sphere_1_number = key.spheres.s1;
@@ -543,12 +548,22 @@ void IVP_SurfaceBuilder_Ledge_Soup::generate_interval_minhash(float fixed_max_ra
 
 	// insert interval start into interval MinHash
 	IVP_Clustering_Shortrange_Interval_Min_Hash_Entry *new_entry_interval_start = new IVP_Clustering_Shortrange_Interval_Min_Hash_Entry(IVP_TRUE, sphere);
-	new_key.key = (int)new_entry_interval_start;
+#if defined(_WIN64)
+	new_key.key = (__int64)new_entry_interval_start; 
+#elif defined(_WIN32)
+	new_key.key = (int)new_entry_interval_start; 
+#endif
+	
 	this->interval_minhash->add((void *)new_key.key, sphere->center.k[this->longest_axis]-radius);
 
 	// insert interval end into interval MinHash
 	IVP_Clustering_Shortrange_Interval_Min_Hash_Entry *new_entry_interval_end = new IVP_Clustering_Shortrange_Interval_Min_Hash_Entry(IVP_FALSE, sphere);
+#if defined(_WIN64)
+	new_key.key = (__int64)new_entry_interval_end;
+#elif defined(_WIN32)
 	new_key.key = (int)new_entry_interval_end;
+#endif
+	
 	this->interval_minhash->add((void *)new_key.key, sphere->center.k[this->longest_axis]+radius);
 
     }
@@ -1374,11 +1389,21 @@ void IVP_SurfaceBuilder_Ledge_Soup::ledgetree_array_debug_output() {
     int i;
     for (i=0; i<this->number_of_nodes; i++) {
 	node = &nodes[i];
+#if defined(_WIN64)
+	printf("Node %d (address: 0x%x / %d)\n", i, (__int64)node, (__int64)node);
+#elif defined(_WIN32)
 	printf("Node %d (address: 0x%x / %d)\n", i, (int)node, (int)node);
+#endif
+	
 	//node->center.print("     center ");
 	printf("        radius %.6f)\n", node->radius);
-	printf("         left branch offset: %d (address: 0x%x / %d)\n", sizeof(*node), (int)(node+1), (int)(node+1));
-	printf("        right branch offset: %d (address: 0x%x / %d)\n", node->offset_right_node, (int)node+node->offset_right_node, (int)node+node->offset_right_node);
+#if defined(_WIN64)
+	printf("         left branch offset: %d (address: 0x%x / %d)\n", sizeof(*node), (__int64)(node + 1), (__int64)(node + 1));
+	printf("        right branch offset: %d (address: 0x%x / %d)\n", node->offset_right_node, (__int64)node + node->offset_right_node, (__int64)node + node->offset_right_node);
+#elif defined(_WIN32)
+	printf("         left branch offset: %d (address: 0x%x / %d)\n", sizeof(*node), (int)(node + 1), (int)(node + 1));
+	printf("        right branch offset: %d (address: 0x%x / %d)\n", node->offset_right_node, (int)node + node->offset_right_node, (int)node + node->offset_right_node);
+#endif
 	printf("\n");
     }
     // *** debugging END ********************************************************

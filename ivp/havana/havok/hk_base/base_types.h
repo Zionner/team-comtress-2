@@ -67,9 +67,12 @@ typedef unsigned int 	hk_size_t;
 #	define HK_HAVE_GNU_INLINE_ASSEMBLY
 	typedef signed long long	hk_int64;
 	typedef unsigned long long	hk_uint64;
-#elif defined(WIN32)
+#elif defined(WIN32) && !defined(_WIN64)
 #	define HK_HAVE_FORCE_INLINE
 #	define HK_HAVE_MSVC_INLINE_ASSEMBLY
+typedef signed __int64		hk_int64;
+typedef unsigned __int64	hk_uint64;
+#elif defined(_WIN64)
 	typedef signed __int64		hk_int64;
 	typedef unsigned __int64	hk_uint64;
 #endif
@@ -107,7 +110,7 @@ typedef hk_uint32	hk_id;
 #endif
 #define HK_TEMPLATE_INLINE inline
 
-#if defined(__i386__) || defined(WIN32)
+#if (defined(__i386__) || defined(WIN32)) && !defined(_WIN64)
 #	define HK_HAVE_QUERY_PERFORMANCE_TIMER
 #endif
 

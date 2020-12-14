@@ -75,7 +75,11 @@ void IVP_Intrusion_Intersection::print(const char *text){
     if (!text){
 	text = "";
     }else{
+#if defined(_WIN64)
+	if (__int64(pairing_intersection) > __int64(this)) return;
+#elif defined(_WIN32)
 	if ( long(pairing_intersection) > long(this)) return;
+#endif
     }
     printf("%s %s Intersection pnt %i - %i",text,
 	   (type != IVP_INTRUSION_CHECK_OVERLAP)? "normal":"equalp",
@@ -264,7 +268,12 @@ void IVP_Tetra_Intrude::checkin_edge(IVP_Tri_Edge *edge){
 
 	this->init_tetra_edge(t_edge,edge->tmp.gen.tetra_point,edge->next->tmp.gen.tetra_point,edge);
     }else{
-	t_edge = (IVP_Tetra_Edge *)(te + long(tetra_edges));
+#if defined(_WIN64)
+		t_edge = (IVP_Tetra_Edge*)(te + __int64(tetra_edges));
+#elif defined(_WIN32)
+		t_edge = (IVP_Tetra_Edge*)(te + long(tetra_edges));
+#endif
+
     }
     t_edge->reference_count++;
     edge->tmp.gen.checked_in = IVP_TRUE;
@@ -286,7 +295,13 @@ void IVP_Tetra_Intrude::checkout_edge(IVP_Tri_Edge *edge){
     }
 
     te = (char *)twop_2_tetra_edge_hash->find((char *)&buffer[0]);
-    t_edge = (IVP_Tetra_Edge *)(te + long(tetra_edges));
+
+#if defined(_WIN64)
+	t_edge = (IVP_Tetra_Edge*)(te + __int64(tetra_edges));
+#elif defined(_WIN32)
+	t_edge = (IVP_Tetra_Edge*)(te + long(tetra_edges));
+#endif
+    
     t_edge->reference_count--;
     /* edge no more referenced -> delete it */
     if (t_edge->reference_count<=0){

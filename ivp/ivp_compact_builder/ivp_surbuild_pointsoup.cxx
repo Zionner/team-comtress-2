@@ -333,7 +333,12 @@ IVP_Compact_Ledge *IVP_SurfaceBuilder_Pointsoup::try_to_build_convex_ledge_from_
 	    vertices= qh_facet3vertex (facet);
 	    point_indizes.remove_all();
 	    FOREACHvertex_(vertices) {
-		int point_index = qh_pointid(vertex->point);
+#if defined(_WIN64)
+			__int64 point_index = qh_pointid(vertex->point);
+#elif defined(_WIN32)
+			int point_index = qh_pointid(vertex->point);
+#endif
+		
 		point_indizes.add( (IVP_SB_PS_DUMMY *)point_index );
 		plane->points.add(points->element_at(point_index));
 		use_list[point_index] ++;
@@ -357,7 +362,12 @@ IVP_Compact_Ledge *IVP_SurfaceBuilder_Pointsoup::try_to_build_convex_ledge_from_
 	      int max_index = 0;
 	      int max_index2 = 0;
 	      for (int i0 = 0; i0 < point_indizes.len(); i0++){
-		int in = int(point_indizes.element_at(i0));
+#if defined(_WIN64)
+			__int64 in = __int64(point_indizes.element_at(i0));
+#elif defined(_WIN32)
+			 int in = int(point_indizes.element_at(i0));
+#endif
+		
 		if (skip_list[in]) goto no_point_skipped;
 		IVP_U_Point *p2 = plane->points.element_at( i0 );
 		IVP_DOUBLE dist = plane->points.element_at( 0 )->quad_distance_to(p2);
@@ -383,7 +393,11 @@ IVP_Compact_Ledge *IVP_SurfaceBuilder_Pointsoup::try_to_build_convex_ledge_from_
 	      {
 		  for (int i2 = 0; i2 < point_indizes.len(); i2++){
 		    if (i2 != max_index2 && i2 != max_index) {
-		      int in = int(point_indizes.element_at(i2));
+#if defined(_WIN64)
+				__int64 in = __int64(point_indizes.element_at(i2));
+#elif defined(_WIN32)
+			int in = int(point_indizes.element_at(i2));
+#endif
 		      skip_list[in]++;
 		      IVP_ASSERT( use_list[in] );
 		      //printf("point removed %i %i\n",in, points->len());
@@ -663,7 +677,7 @@ IVP_Compact_Ledge *IVP_SurfaceBuilder_Pointsoup::convert_pointsoup_to_compact_le
   * FPU mode
   ************************************************/
   //doesnt work with threads !!
-#ifdef WIN32
+#if defined(WIN32) && !defined(_WIN64)
   WORD tmpflag;
   __asm FSTCW tmpflag;
 
@@ -678,7 +692,7 @@ IVP_Compact_Ledge *IVP_SurfaceBuilder_Pointsoup::convert_pointsoup_to_compact_le
     } else { // use QHULL to convert pointsoup
 	return IVP_SurfaceBuilder_Pointsoup::convert_pointsoup_to_compact_ledge_internal(points);
     }
-#ifdef WIN32
+#if defined(WIN32) && !defined(_WIN64)
   __asm FLDCW tmpflag;
 #endif
 }

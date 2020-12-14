@@ -22,11 +22,19 @@
 
 inline void IVP_VecFPU::fpu_add_multiple_row(IVP_DOUBLE *target_adress,IVP_DOUBLE *source_adress,IVP_DOUBLE factor,int size,IVP_BOOL adress_aligned) {
     if(adress_aligned==IVP_FALSE) {
-	//we have to calculate the block size and shift adresses to lower aligned adresses
-	long result_adress = long(source_adress) & IVP_VECFPU_MEM_MASK;
-	target_adress = (IVP_DOUBLE *)( long (target_adress) & IVP_VECFPU_MEM_MASK);
-	size += (long(source_adress)-result_adress)>>IVP_VECFPU_MEMSHIFT;
-	source_adress=(IVP_DOUBLE *)result_adress;
+#if defined(_WIN64)
+		//we have to calculate the block size and shift adresses to lower aligned adresses
+		__int64 result_adress = __int64(source_adress) & IVP_VECFPU_MEM_MASK;
+		target_adress = (IVP_DOUBLE*)(__int64(target_adress) & IVP_VECFPU_MEM_MASK);
+		size += (__int64(source_adress) - result_adress) >> IVP_VECFPU_MEMSHIFT;
+		source_adress = (IVP_DOUBLE*)result_adress;
+#elif defined(_WIN32)
+		//we have to calculate the block size and shift adresses to lower aligned adresses
+		long result_adress = long(source_adress) & IVP_VECFPU_MEM_MASK;
+		target_adress = (IVP_DOUBLE*)(long(target_adress) & IVP_VECFPU_MEM_MASK);
+		size += (long(source_adress) - result_adress) >> IVP_VECFPU_MEMSHIFT;
+		source_adress = (IVP_DOUBLE*)result_adress;
+#endif
     }
 
 #if defined(IVP_USE_PS2_VU0)
@@ -103,11 +111,20 @@ inline void IVP_VecFPU::fpu_add_multiple_row(IVP_DOUBLE *target_adress,IVP_DOUBL
 
 inline IVP_DOUBLE IVP_VecFPU::fpu_large_dot_product(IVP_DOUBLE *base_a, IVP_DOUBLE *base_b, int size, IVP_BOOL adress_aligned) {
     if(adress_aligned==IVP_FALSE) {
-	    //we have to calculate the block size and shift adresses to lower aligned adresses
-	    long result_adress = long(base_a) & IVP_VECFPU_MEM_MASK;
-	    base_b = (IVP_DOUBLE *)( long (base_b) & IVP_VECFPU_MEM_MASK);
-	    size += (long(base_a)-result_adress)>>IVP_VECFPU_MEMSHIFT;  // because start changed
-	    base_a=(IVP_DOUBLE *)result_adress;
+#if defined(_WIN64)
+		//we have to calculate the block size and shift adresses to lower aligned adresses
+		__int64 result_adress = __int64(base_a) & IVP_VECFPU_MEM_MASK;
+		base_b = (IVP_DOUBLE*)(__int64(base_b) & IVP_VECFPU_MEM_MASK);
+		size += (__int64(base_a) - result_adress) >> IVP_VECFPU_MEMSHIFT;  // because start changed
+		base_a = (IVP_DOUBLE*)result_adress;
+#elif defined(_WIN32)
+		//we have to calculate the block size and shift adresses to lower aligned adresses
+		long result_adress = long(base_a) & IVP_VECFPU_MEM_MASK;
+		base_b = (IVP_DOUBLE*)(long(base_b) & IVP_VECFPU_MEM_MASK);
+		size += (long(base_a) - result_adress) >> IVP_VECFPU_MEMSHIFT;  // because start changed
+		base_a = (IVP_DOUBLE*)result_adress;
+#endif
+
     }
 #   if defined(IVP_WILLAMETTE)
     IVP_IF_WILLAMETTE_OPT(IVP_Environment_Manager::get_environment_manager()->ivp_willamette_optimization) {

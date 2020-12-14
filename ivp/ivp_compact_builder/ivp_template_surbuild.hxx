@@ -8,6 +8,8 @@ enum IVP_SURBUILD_LEDGE_SOUP_MERGE_POINT_TYPES {
 };
 
 class IVP_Template_Surbuild_LedgeSoup {
+    friend class CPhysicsCollision;
+    friend class CPhysicsCollision;
 public:
     /********************************************************************************
      *  Parameter:    build_root_convex_hull

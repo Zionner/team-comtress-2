@@ -92,11 +92,21 @@ IVP_BOOL IVP_Mindist_Minimize_Solver::check_loop_hash(IVP_SYNAPSE_POLYGON_STATUS
     IVP_ASSERT( i_s0 < 4);
     IVP_ASSERT( i_s1 < 4);
 
-    int x0 = int(i_e0) | i_s0;
-    int x1 = int(i_e1) | i_s1;
+#if defined(_WIN64)
+	__int64 x0 = __int64(i_e0) | i_s0;
+	__int64 x1 = __int64(i_e1) | i_s1;
+#elif defined(_WIN32)
+	int x0 = int(i_e0) | i_s0;
+	int x1 = int(i_e1) | i_s1;
+#endif
 
     if (x0 < x1) {
-	int h = x0; x0 = x1; x1 = h;
+#if defined(_WIN64)
+		__int64 h = x0; x0 = x1; x1 = h;
+#elif defined(_WIN32)
+		int h = x0; x0 = x1; x1 = h;
+#endif
+	
     }
 
     IVP_MM_Loop_Hash_Struct *s = & loop_hash[loop_hash_size-1];

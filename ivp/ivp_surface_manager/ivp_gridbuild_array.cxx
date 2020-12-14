@@ -74,7 +74,12 @@ int IVP_GridBuilder_Array::install_grid_point(int grid_point_index){
     compact_poly_point_buffer[ index ] = height_points[grid_point_index];
 	IVP_IF(1) {
 		IVP_Compact_Poly_Point *cpp=&compact_poly_point_buffer[ index ];
-		int adress=(int)cpp;
+#if defined(_WIN64)
+		__int64 adress = (__int64)cpp;
+#elif defined(_WIN32)
+		int adress = (int)cpp;
+#endif
+		
 		IVP_ASSERT( (adress & 15)==0 );
 	}
     return index;
@@ -84,7 +89,12 @@ int IVP_GridBuilder_Array::install_point(const IVP_U_Float_Point *point){
     int index = n_compact_poly_points_used++;
 	IVP_IF(1) {
 		IVP_Compact_Poly_Point *cpp=&compact_poly_point_buffer[ index ];
-		int adress=(int)cpp;
+#if defined(_WIN64)
+		__int64 adress = (__int64)cpp;
+#elif defined(_WIN32)
+		int adress = (int)cpp;
+#endif
+		
 		IVP_ASSERT( (adress & 15)==0 );
 	}
     compact_poly_point_buffer[ index ].set(point);
@@ -837,7 +847,12 @@ IVP_Compact_Grid *IVP_GridBuilder_Array::compile_ledges_into_compact_grid(const 
 		}
 
 		// and the ledges
-		dest = (char *)((long(dest)+0xf) & ~0xf);     	// align destination
+#if defined(_WIN64)
+		dest = (char*)((__int64(dest) + 0xf) & ~0xf);     	// align destination
+#elif defined(_WIN32)
+		dest = (char*)((long(dest) + 0xf) & ~0xf);     	// align destination
+#endif
+		
 		for (int ledge_index = 0; ledge_index < ledges->len(); ledge_index++){
 			IVP_Compact_Ledge *cl;
 			cl = ledges->element_at(ledge_index);

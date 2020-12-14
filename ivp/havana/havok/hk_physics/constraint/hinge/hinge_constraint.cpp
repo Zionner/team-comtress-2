@@ -23,7 +23,7 @@ struct hk_Hinge_Constraint_Work
 	hk_Fixed_Dense_Vector<5> m_correction;
 	hk_VM_Query_Builder< hk_VMQ_Storage<5> > query_engine;
 	
-#ifdef HK_ARCH_PPC
+#if defined(HK_ARCH_PPC) || defined(_WIN64)
 
 	static inline void *operator new (size_t size, void *addr){
 		return addr;

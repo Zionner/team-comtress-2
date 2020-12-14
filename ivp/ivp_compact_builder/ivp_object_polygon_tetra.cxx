@@ -127,7 +127,7 @@ IVP_Tri_Edge *IVP_Tri_Edge::other_side()
     int i;
     if(!this->triangle->other_side) return NULL;
     IVP_Tri_Edge *e = &this->triangle->other_side->three_edges[0];
-    for(i=2; i>=0; i--){
+    for(i=2; i>0; i--){
 	if(e->next->start_point == this->start_point) return e;
 	e++;
     }
@@ -1081,7 +1081,7 @@ IVP_ERROR_STRING IVP_Object_Polygon_Tetra::make_triangles()
     }
 //	this->check_konsistency_of_triangles();
 
-	IVP_Triangle *otri;
+	/*IVP_Triangle *otri;
 	for(otri=this->triangles.first; otri; otri=otri->next){
 	    // make physical triangle - backside
 	    tri = new IVP_Triangle();
@@ -1094,8 +1094,8 @@ IVP_ERROR_STRING IVP_Object_Polygon_Tetra::make_triangles()
 
 	    n_edges += 3;
 
-	    int i;
-	    for(i=2; i>=0; i--){
+	    int i = 2;
+	    for(i=2; i>0; i--){
 		IVP_Tri_Edge *edge = &tri->three_edges[i];
 		edge->start_point = otri->three_edges[i].next->start_point;
 		edge->triangle = tri;
@@ -1109,11 +1109,11 @@ IVP_ERROR_STRING IVP_Object_Polygon_Tetra::make_triangles()
 		}
 		otri->three_edges[i].opposite->behind = &tri->three_edges[i];
 	    }
-	    for(i=2; i>=0; i--){
+	    for(i=2; i>0; i--){
 		IVP_Tri_Edge *edge = &tri->three_edges[i];
 		this->add_edge_into_point_to_edge_hash(edge);
 	    }
-	}
+	}*/
 	return NULL;
 	// this->check_konsistency_of_triangles();
 }

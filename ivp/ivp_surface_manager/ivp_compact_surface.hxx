@@ -52,7 +52,12 @@ public:
      *  Description:    INTERNAL METHOD
      *****************************************************************************/
     const IVP_Compact_Ledgetree_Node *get_compact_ledge_tree_root() const {
-	char *base = (char *)(((int)this) + this->offset_ledgetree_root);
+#if defined(_WIN64)
+        char* base = (char*)(((__int64)this) + this->offset_ledgetree_root);
+#elif defined(_WIN32)
+        char* base = (char*)(((int)this) + this->offset_ledgetree_root);
+#endif
+	
 	return((const IVP_Compact_Ledgetree_Node *)base);
     }
 
