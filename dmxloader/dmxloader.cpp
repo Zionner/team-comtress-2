@@ -27,7 +27,11 @@ void BeginDMXContext( )
 
 	if ( !s_bAllocatorInitialized )
 	{
-		s_DMXAllocator.Init( 2 * 1024 * 1024, 0, 0, 4 );
+#if defined(_WIN64)
+		s_DMXAllocator.Init( 4 * 1024 * 1024, 0, 0, 4 ); // A lot of the objects using the allocator are slightly bigger under x64, and the standard allocation isn't big enough, so I've increased it.
+#else
+		s_DMXAllocator.Init(2 * 1024 * 1024, 0, 0, 4);
+#endif
 		s_bAllocatorInitialized = true;
 	}
 

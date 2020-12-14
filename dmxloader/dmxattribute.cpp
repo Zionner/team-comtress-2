@@ -7,6 +7,7 @@
 #include "dmxloader/dmxattribute.h"
 #include "tier1/utlbufferutil.h"
 #include "tier1/uniqueid.h"
+#include "utlmemory.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -16,6 +17,14 @@
 // globals
 //-----------------------------------------------------------------------------
 CUtlSymbolTableMT CDmxAttribute::s_AttributeNameSymbols;
+
+#if defined(_WIN64)
+#define CUTLSTRING_OFFSET 4
+#define CUTLBINARYBLOCK_OFFSET 8
+#else
+#define CUTLSTRING_OFFSET 0
+#define CUTLBINARYBLOCK_OFFSET 0
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -73,9 +82,10 @@ struct CSizeTest
 		COMPILE_TIME_ASSERT( sizeof( QAngle )		== 12 );
 		COMPILE_TIME_ASSERT( sizeof( Quaternion )	== 16 );
 		COMPILE_TIME_ASSERT( sizeof( VMatrix )		== 64 );
-		COMPILE_TIME_ASSERT( sizeof( CUtlString )	== 4 );
-		COMPILE_TIME_ASSERT( sizeof( CUtlBinaryBlock ) == 16 );
+		COMPILE_TIME_ASSERT( sizeof( CUtlString ) - CUTLSTRING_OFFSET == 4 );
+		COMPILE_TIME_ASSERT( sizeof( CUtlBinaryBlock ) - CUTLBINARYBLOCK_OFFSET == 16 );
 		COMPILE_TIME_ASSERT( sizeof( DmObjectId_t )	== 16 );
+		//COMPILE_TIME_ASSERT(sizeof(CUtlPtrUnion) == 4);
 	};
 };
 static CSizeTest g_sizeTest;
