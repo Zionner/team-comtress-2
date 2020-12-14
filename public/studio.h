@@ -1131,7 +1131,12 @@ struct mstudioflex_t
 	int					flexpair;	// second flex desc
 	unsigned char		vertanimtype;	// See StudioVertAnimType_t
 	unsigned char		unusedchar[3];
+
+#if defined(_WIN64)
+	int					unused[3];
+#else
 	int					unused[6];
+#endif
 };
 
 
@@ -1196,7 +1201,12 @@ struct mstudiotexture_t
 	mutable IMaterial		*material;  // fixme: this needs to go away . .isn't used by the engine, but is used by studiomdl
 	mutable void			*clientmaterial;	// gary, replace with client material pointer if used
 	
+#if defined(_WIN64)
+	int						unused[7];
+#else
 	int						unused[10];
+#endif
+	
 };
 
 // eyeball
@@ -1340,7 +1350,11 @@ struct mstudiomesh_t
 
 	mstudio_meshvertexdata_t vertexdata;
 
+#if defined(_WIN64)
+	int					unused[1]; // remove as appropriate
+#else
 	int					unused[8]; // remove as appropriate
+#endif
 
 	mstudiomesh_t(){}
 private:
@@ -1384,7 +1398,12 @@ struct mstudiomodel_t
 
 	mstudio_modelvertexdata_t vertexdata;
 
+#if defined(_WIN64)
+	//int					unused[1];		// remove as appropriate
+#else
 	int					unused[8];		// remove as appropriate
+#endif
+
 };
 
 inline bool mstudio_modelvertexdata_t::HasTangentData( void ) const 

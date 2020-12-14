@@ -57,7 +57,11 @@ private:
 // in memory, but always operate on 32's or 64's in local scope.
 // The ideal parameter order would be TSMI (you are more likely to override M than I)
 // but since M depends on I we can't have the defaults in that order, alas.
+#if defined(_WIN64)
+template <class T, class S = unsigned __int64, bool ML = false, class I = S, class M = CUtlMemory< UtlLinkedListElem_t<T, S>, I > >
+#else
 template <class T, class S = unsigned short, bool ML = false, class I = S, class M = CUtlMemory< UtlLinkedListElem_t<T, S>, I > > 
+#endif
 class CUtlLinkedList
 {
 public:
@@ -390,13 +394,24 @@ private:
 
 // this is kind of ugly, but until C++ gets templatized typedefs in C++0x, it's our only choice
 template < class T >
+#if defined(_WIN64)
+class CUtlFixedLinkedList : public CUtlLinkedList< T, __int64, true, __int64, CUtlFixedMemory< UtlLinkedListElem_t< T, __int64 > > >
+{
+public:
+	CUtlFixedLinkedList(int growSize = 0, int initSize = 0)
+		: CUtlLinkedList< T, __int64, true, __int64, CUtlFixedMemory< UtlLinkedListElem_t< T, __int64 > > >(growSize, initSize) {}
+
+	typedef CUtlLinkedList< T, __int64, true, __int64, CUtlFixedMemory< UtlLinkedListElem_t< T, __int64 > > > BaseClass;
+#else
 class CUtlFixedLinkedList : public CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > >
 {
 public:
-	CUtlFixedLinkedList( int growSize = 0, int initSize = 0 )
-		: CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > >( growSize, initSize ) {}
+	CUtlFixedLinkedList(int growSize = 0, int initSize = 0)
+		: CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > >(growSize, initSize) {}
 
 	typedef CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > > BaseClass;
+#endif
+
 	bool IsValidIndex( int i ) const
 	{
 		if ( !BaseClass::Memory().IsIdxValid( i ) )
@@ -439,7 +454,11 @@ CUtlLinkedList<T,S,ML,I,M>::CUtlLinkedList( int growSize, int initSize ) :
 	m_Memory( growSize, initSize ), m_LastAlloc( m_Memory.InvalidIterator() )
 {
 	// Prevent signed non-int datatypes
-	COMPILE_TIME_ASSERT( sizeof(S) == 4 || ( ( (S)-1 ) > 0 ) );
+#if defined(_WIN64)
+	COMPILE_TIME_ASSERT( sizeof(S) <= 8 || ( ( (S)-1 ) > 0 ) );
+#else
+	COMPILE_TIME_ASSERT(sizeof(S) == 4 || (((S)-1) > 0));
+#endif
 	ConstructList();
 	ResetDbgInfo();
 }

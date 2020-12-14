@@ -14,7 +14,12 @@
 #include "tier1/interface.h"
 #include "bitmap/imageformat.h"
 
+#if !defined(_WIN64)
 typedef unsigned int ColorCorrectionHandle_t;
+#else
+typedef unsigned __int64 ColorCorrectionHandle_t;
+#endif
+
 struct ShaderColorCorrectionInfo_t;
 
 #define COLORCORRECTION_INTERFACE_VERSION "COLORCORRECTION_VERSION_1"

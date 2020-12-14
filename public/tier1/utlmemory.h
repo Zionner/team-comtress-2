@@ -42,6 +42,14 @@
 // The CUtlMemory class:
 // A growable memory class which doubles in size by default.
 //-----------------------------------------------------------------------------
+
+template< class T >
+union CUtlPtrUnion
+{
+	T* __ptr32 m_pMemory32;
+	T* __ptr64 m_pMemory64;
+};
+
 template< class T, class I = int >
 class CUtlMemory
 {
@@ -152,7 +160,6 @@ protected:
 	int m_nAllocationCount;
 	int m_nGrowSize;
 };
-
 
 //-----------------------------------------------------------------------------
 // The CUtlMemory class:
@@ -552,7 +559,7 @@ inline T& CUtlMemory<T,I>::operator[]( I i )
 	// Avoid function calls in the asserts to improve debug build performance
 	Assert( m_nGrowSize != EXTERNAL_CONST_BUFFER_MARKER ); //Assert( !IsReadOnly() );
 	Assert( (uint32)i < (uint32)m_nAllocationCount );
-	return m_pMemory[(uint32)i];
+	return ((T * __ptr64)m_pMemory)[(uint32)i];
 }
 
 template< class T, class I >
@@ -560,7 +567,7 @@ inline const T& CUtlMemory<T,I>::operator[]( I i ) const
 {
 	// Avoid function calls in the asserts to improve debug build performance
 	Assert( (uint32)i < (uint32)m_nAllocationCount );
-	return m_pMemory[(uint32)i];
+	return ((T * __ptr64)m_pMemory)[(uint32)i];
 }
 
 template< class T, class I >
@@ -569,7 +576,7 @@ inline T& CUtlMemory<T,I>::Element( I i )
 	// Avoid function calls in the asserts to improve debug build performance
 	Assert( m_nGrowSize != EXTERNAL_CONST_BUFFER_MARKER ); //Assert( !IsReadOnly() );
 	Assert( (uint32)i < (uint32)m_nAllocationCount );
-	return m_pMemory[(uint32)i];
+	return ((T * __ptr64)m_pMemory)[(uint32)i];
 }
 
 template< class T, class I >
@@ -577,7 +584,7 @@ inline const T& CUtlMemory<T,I>::Element( I i ) const
 {
 	// Avoid function calls in the asserts to improve debug build performance
 	Assert( (uint32)i < (uint32)m_nAllocationCount );
-	return m_pMemory[(uint32)i];
+	return ((T * __ptr64)m_pMemory)[(uint32)i];
 }
 
 

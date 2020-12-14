@@ -1150,7 +1150,7 @@ inline void CVertexBuilder::FastAdvanceNVertices( int n )
 
 
 
-#ifndef COMPILER_MSVC64
+#if 1 //defined(_WIN64)
 // Implement for 64-bit Windows if needed.
 //-----------------------------------------------------------------------------
 // Fast Vertex! No need to call advance vertex, and no random access allowed
@@ -1160,7 +1160,7 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX7_t &vertex )
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined(_WIN64)
 	const void *pRead = &vertex;
 	void *pCurrPos = m_pCurrPosition;
 
@@ -1185,7 +1185,7 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX7_t &vertex )
 
 			emms
 	}
-#elif defined(GNUC)
+#elif defined(GNUC) 
 	const void *pRead = &vertex;
 	void *pCurrPos = m_pCurrPosition;
 	__asm__ __volatile__ (
@@ -1203,7 +1203,7 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX7_t &vertex )
 						  "movntq %%mm5, 40(%1)\n"
 						  "emms\n"
 						  :: "r" (pRead), "r" (pCurrPos) : "memory");
-#else
+#elif defined(_WIN64)
 	Error( "Implement CMeshBuilder::FastVertex(dx7) ");
 #endif
 
@@ -1216,12 +1216,16 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX7_t &vertex )
 #endif
 }
 
+#ifdef _WIN64
+extern "C" void CallFast4VerticesASM64(void* vtx_a, void* vtx_b, void* vtx_c, void* vtx_d, void* pCurrPos);
+#endif
+
 inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX7_t &vertex )
 {
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined(_WIN64)
 	const void *pRead = &vertex;
 	void *pCurrPos = m_pCurrPosition;
 	__asm
@@ -1268,7 +1272,7 @@ inline void CVertexBuilder::Fast4VerticesSSE(
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount-3 );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined(_WIN64)
 	void *pCurrPos = m_pCurrPosition;
 	__asm
 	{
@@ -1310,6 +1314,9 @@ inline void CVertexBuilder::Fast4VerticesSSE(
 			movntps [edi + 80+96], xmm5
 
 	}
+#elif defined(_WIN64)
+	void* pCurrPos = m_pCurrPosition;
+	CallFast4VerticesASM64((void*)vtx_a, (void*)vtx_b, (void*)vtx_c, (void*)vtx_d, (void*)pCurrPos);
 #else
 	Error( "Implement CMeshBuilder::Fast4VerticesSSE\n");
 #endif
@@ -1326,7 +1333,7 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX8_t &vertex )
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined(_WIN64)
 	const void *pRead = &vertex;
 	void *pCurrPos = m_pCurrPosition;
 	__asm
@@ -1394,7 +1401,7 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX8_t &vertex )
 	Assert( m_CompressionType == VERTEX_COMPRESSION_NONE ); // FIXME: support compressed verts if needed
 	Assert( m_nCurrentVertex < m_nMaxVertexCount );
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined(_WIN64)
 	const void *pRead = &vertex;
 	void *pCurrPos = m_pCurrPosition;
 	__asm

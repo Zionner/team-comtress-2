@@ -129,7 +129,7 @@ public:
 
 		for (uint32 i = 1; i <= m; i++)
 		{
-#ifdef COMPILER_MSVC64
+#ifdef _WIN64
 			__cpuid((int *) (d + (i-1) * 4), i);
 
 #else
@@ -283,7 +283,7 @@ private:
 
 		for (int i = 0; i < count; i++)
 		{
-#ifdef COMPILER_MSVC64
+#ifdef _WIN64
 			__cpuid((int *) d, 2);
 #else
 			__asm
@@ -328,7 +328,7 @@ private:
 	{
 		uint32 m;
 
-#ifdef COMPILER_MSVC64
+#ifdef _WIN64
 		int data[4];
 		__cpuid(data, 0x80000000);
 		m = data[0];
@@ -349,7 +349,7 @@ private:
 			{
 				uint32 *t = d + (i - 0x80000001) * 4;
 
-#ifdef COMPILER_MSVC64
+#ifdef _WIN64
 				__cpuid((int *) (d + (i - 0x80000001) * 4), i);
 #else
 				__asm

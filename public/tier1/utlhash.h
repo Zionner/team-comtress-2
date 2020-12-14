@@ -461,7 +461,12 @@ inline void CUtlHash<Data, C, K>::Log( const char *filename )
 // Number of buckets must be a power of 2.
 // Key must be 32-bits (unsigned int).
 //
+#if defined(_WIN64)
+typedef __int64 UtlHashFastHandle_t; // TODO: We need to inspect the ramifications of changing this to 64 bit.
+#else
 typedef int UtlHashFastHandle_t;
+#endif
+
 
 #define UTLHASH_POOL_SCALAR		2
 
@@ -719,7 +724,11 @@ template<class Data, class HashFuncs> inline Data const &CUtlHashFast<Data,HashF
 // Number of buckets must be a power of 2.
 // Key must be 32-bits (unsigned int).
 //
+#if defined(_WIN64)
+typedef __int64 UtlHashFixedHandle_t;
+#else
 typedef int UtlHashFixedHandle_t;
+#endif
 
 template <int NUM_BUCKETS>
 class CUtlHashFixedGenericHash

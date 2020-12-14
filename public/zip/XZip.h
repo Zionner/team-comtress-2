@@ -117,7 +117,11 @@ typedef void * HANDLE;
 DECLARE_HANDLE(HZIP);		// An HZIP identifies a zip file that is being created
 #endif
 
+#if !defined(_WIN64)
 typedef DWORD ZRESULT;		// result codes from any of the zip functions. Listed later.
+#else
+typedef __int64 ZRESULT;		// Aidan: This was added to fix a compile time assert in the x64 version of CThreadLocal
+#endif
 
 // flag values passed to some functions
 #define ZIP_HANDLE   1

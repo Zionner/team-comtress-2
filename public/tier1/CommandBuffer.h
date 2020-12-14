@@ -100,11 +100,19 @@ private:
 	};
 
 	// Insert a command into the command queue at the appropriate time
-	void InsertCommandAtAppropriateTime( int hCommand );
-						   
-	// Insert a command into the command queue
-	// Only happens if it's inserted while processing other commands
-	void InsertImmediateCommand( int hCommand );
+#if defined(_WIN64)
+	void InsertCommandAtAppropriateTime(__int64 hCommand);
+#else
+	void InsertCommandAtAppropriateTime(int hCommand);
+#endif
+
+		// Insert a command into the command queue
+		// Only happens if it's inserted while processing other commands
+#if defined(_WIN64)
+		void InsertImmediateCommand(__int64 hCommand);
+#else
+		void InsertImmediateCommand(int hCommand);
+#endif
 
 	// Insert a command into the command queue
 	bool InsertCommand( const char *pArgS, int nCommandSize, int nTick );
@@ -125,7 +133,12 @@ private:
 	int		m_nCurrentTick;
 	int		m_nLastTickToProcess;
 	int		m_nWaitDelayTicks;
+
+#if defined(_WIN64)
+	__int64		m_hNextCommand;
+#else
 	int		m_hNextCommand;
+#endif
 	int		m_nMaxArgSBufferLength;
 	bool	m_bIsProcessingCommands;
 	bool	m_bWaitEnabled;

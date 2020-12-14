@@ -235,7 +235,7 @@ public:
         //ReadMSR(counterPort, int64); 
 
         // we need to copy this into a temp for some reason
-#ifdef COMPILER_MSVC64
+#ifdef _WIN64
 	return __readpmc((unsigned long) eventSelectNum);
 #else
         int temp = eventSelectNum;
