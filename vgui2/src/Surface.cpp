@@ -58,6 +58,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef _WIN64
+#include <WinUser.h>
+#endif
+
 #ifdef PlaySound
 #undef PlaySound
 #endif
@@ -2493,7 +2497,11 @@ void CWin32Surface::CreatePopup(VPANEL panel, bool minimised, bool showTaskbarIc
 	plat->textureDC = NULL;
 
 	::SetBkMode(plat->hdc, TRANSPARENT);
+#if defined(_WIN32) && !defined(_WIN64)
 	::SetWindowLong(plat->hwnd, GWL_USERDATA, (LONG)g_pIVgui->PanelToHandle(panel));
+#elif defined(_WIN64)
+	::SetWindowLongPtr(plat->hwnd, GWLP_USERDATA, (LONG)g_pIVgui->PanelToHandle(panel));
+#endif
 	::SetTextAlign(plat->hdc, TA_LEFT | TA_TOP | TA_UPDATECP);
 	
 	if (!((VPanel *)panel)->IsVisible() || panel == _embeddedPanel)
@@ -2514,7 +2522,9 @@ void CWin32Surface::CreatePopup(VPANEL panel, bool minimised, bool showTaskbarIc
 	else
 	{
 		// somehow getting added twice, fundamental problem
+#ifndef _WIN64
 		_asm int 3;
+#endif
 	}
 
 	// hack, force a windows sound to be played
@@ -2571,7 +2581,11 @@ void CWin32Surface::ReleasePanel(VPANEL panel)
 		SetPanelVisible(panel, false);
 
 		// free all the windows/bitmap/DC handles we are using
+#if defined(_WIN32) && !defined(_WIN64)
 		::SetWindowLong(plat->hwnd, GWL_USERDATA, (LONG)-1);
+#elif defined(_WIN64)
+		::SetWindowLongPtr(plat->hwnd, GWLP_USERDATA, (LONG)-1);
+#endif
 		::SetWindowPos(plat->hwnd, HWND_BOTTOM, 0, 0, 1, 1, SWP_NOREDRAW|SWP_HIDEWINDOW);
 
 		// free the window context
@@ -3721,7 +3735,13 @@ static LRESULT CALLBACK staticProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lpara
 
 	if (staticSurfaceAvailable)
 	{
+#if defined(_WIN32) && !defined(_WIN64)
 		panel = g_pIVgui->HandleToPanel(::GetWindowLong(hwnd, GWL_USERDATA));
+#elif defined(_WIN64)
+		panel = g_pIVgui->HandleToPanel(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
+#endif
+
+		
 
 		if (panel)
 		{
