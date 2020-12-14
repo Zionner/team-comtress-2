@@ -3511,7 +3511,11 @@ public:
 		: m_pList(pListIn), m_listMax(listMaxIn), m_count(0)
 	{
 	}
+#if defined(_WIN32) && !defined(_WIN64)
 	virtual bool EnumerateLeaf(int leaf, intp context)
+#elif defined(_WIN64)
+	virtual bool EnumerateLeaf(int leaf, int context)
+#endif
 	{
 		if (m_count < m_listMax)
 		{

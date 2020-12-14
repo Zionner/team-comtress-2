@@ -438,7 +438,7 @@ double PME::GetCPUClockSpeedSlow(void)
     while (start_ms <= GetTickCount());
 
     // read timestamp (you could use QueryPerformanceCounter in hires mode if you want)
-#ifdef COMPILER_MSVC64 
+#ifdef _WIN64 
     RDTSC(start_tsc);
 #else
     __asm
@@ -454,7 +454,7 @@ double PME::GetCPUClockSpeedSlow(void)
     while (stop_ms > GetTickCount());
 
     // read timestamp (you could use QueryPerformanceCounter in hires mode if you want)
-#ifdef COMPILER_MSVC64
+#ifdef _WIN64
     RDTSC(stop_tsc);
 #else
     __asm

@@ -28,7 +28,7 @@ struct cmdalias_t
 //-----------------------------------------------------------------------------
 // Constructor, destructor
 //-----------------------------------------------------------------------------
-CCommandBuffer::CCommandBuffer( ) : m_Commands( 32, 32 )
+CCommandBuffer::CCommandBuffer( ) : m_Commands( 32, 128 )
 {
 	m_hNextCommand = m_Commands.InvalidIndex();
 	m_nWaitDelayTicks = 1;
@@ -92,9 +92,15 @@ bool CCommandBuffer::ParseArgV0( CUtlBuffer &buf, char *pArgV0, int nMaxLen, con
 //-----------------------------------------------------------------------------
 // Insert a command into the command queue
 //-----------------------------------------------------------------------------
-void CCommandBuffer::InsertCommandAtAppropriateTime( int hCommand )
+#if defined(_WIN64)
+void CCommandBuffer::InsertCommandAtAppropriateTime(__int64 hCommand)
+{
+	__int64 i;
+#else
+void CCommandBuffer::InsertCommandAtAppropriateTime(int hCommand)
 {
 	int i;
+#endif
 	Command_t &command = m_Commands[hCommand];
 	for ( i = m_Commands.Head(); i != m_Commands.InvalidIndex(); i = m_Commands.Next(i) )
 	{
@@ -108,7 +114,11 @@ void CCommandBuffer::InsertCommandAtAppropriateTime( int hCommand )
 //-----------------------------------------------------------------------------
 // Insert a command into the command queue at the appropriate time
 //-----------------------------------------------------------------------------
-void CCommandBuffer::InsertImmediateCommand( int hCommand )
+#if defined(_WIN64)
+void CCommandBuffer::InsertImmediateCommand(__int64 hCommand)
+#else
+void CCommandBuffer::InsertImmediateCommand(int hCommand)
+#endif
 {
 	m_Commands.LinkBefore( m_hNextCommand, hCommand );
 }
@@ -137,7 +147,12 @@ bool CCommandBuffer::InsertCommand( const char *pArgS, int nCommandSize, int nTi
 	m_pArgSBuffer[m_nArgSBufferSize + nCommandSize] = 0;
 	++nCommandSize;
 
+#if defined(_WIN64)
+	__int64 hCommand = m_Commands.Alloc();
+#else
 	int hCommand = m_Commands.Alloc();
+#endif
+	
 	Command_t &command = m_Commands[hCommand];
 	command.m_nTick = nTick;
 	command.m_nFirstArgS = m_nArgSBufferSize;
@@ -299,7 +314,12 @@ bool CCommandBuffer::DequeueNextCommand( )
 	if ( m_Commands.Count() == 0 )
 		return false;
 
+#if defined(_WIN64)
+	__int64 nHead = m_Commands.Head();
+#else
 	int nHead = m_Commands.Head();
+#endif
+	
 	Command_t &command = m_Commands[ nHead ];
 	if ( command.m_nTick > m_nLastTickToProcess )
 		return false;

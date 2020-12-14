@@ -24,7 +24,10 @@ extern void Con_Printf( char *fmt, ... );
 
 // So we can link CRC
 int LittleLongFn( int l );
+
+#ifndef _WIN64
 int (*LittleLong)(int l) = LittleLongFn;
+#endif
 
 
 // So we can link CRC
