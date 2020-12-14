@@ -1,0 +1,47 @@
+PUBLIC CallFast4VerticesASM64
+.CODE
+
+CallFast4VerticesASM64	PROC FRAME, vtx_a:QWORD, vtx_b:QWORD, vtx_c:QWORD, vtx_d:QWORD, pCurrPos:QWORD  
+; void CallFast4VerticesASM64(void* vtx_a, void* vtx_b, void* vtx_c, void* vtx_d, void* pCurrPos);
+        .endprolog      
+        
+		mov rsi, vtx_a
+			mov rcx, vtx_b
+
+			mov rdi, pCurrPos
+			nop
+
+			movaps xmm0, [rsi + 0]
+		movaps xmm1, [rsi + 16]
+		movaps xmm2, [rsi + 32]
+		movaps xmm3, [ecx + 0]
+		movaps xmm4, [ecx + 16]
+		movaps xmm5, [ecx + 32]
+
+		mov rsi, vtx_c
+			mov rcx, vtx_d
+
+			movntps [rdi + 0], xmm0
+			movntps [rdi + 16], xmm1
+			movntps [rdi + 32], xmm2
+			movntps [rdi + 48], xmm3
+			movntps [rdi + 64], xmm4
+			movntps [rdi + 80], xmm5
+
+			movaps xmm0, [rsi + 0]
+		movaps xmm1, [rsi + 16]
+		movaps xmm2, [rsi + 32]
+		movaps xmm3, [rcx + 0]
+		movaps xmm4, [rcx + 16]
+		movaps xmm5, [rcx + 32]
+
+		movntps [rdi + 0+96], xmm0
+			movntps [rdi + 16+96], xmm1
+			movntps [rdi + 32+96], xmm2
+			movntps [rdi + 48+96], xmm3
+			movntps [rdi + 64+96], xmm4
+			movntps [rdi + 80+96], xmm5
+
+
+CallFast4VerticesASM64 ENDP
+END
