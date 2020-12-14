@@ -3366,7 +3366,7 @@ void MathLib_Init( float gamma, float texGamma, float brightness, int overbright
 	{
 		s_bSSEEnabled = true;
 
-#ifdef PLATFORM_WINDOWS_PC
+#if defined(PLATFORM_WINDOWS_PC) && !defined(_WIN64)
 		// These are not yet available.
 		// Select the SSE specific routines if available
 		pfVectorNormalize = _VectorNormalize;
@@ -3386,10 +3386,13 @@ void MathLib_Init( float gamma, float texGamma, float brightness, int overbright
 
 	if ( bAllowSSE2 && pi.m_bSSE2 )
 	{
+#if defined(PLATFORM_WINDOWS) && !defined(_WIN64)
 		s_bSSE2Enabled = true;
-#ifdef PLATFORM_WINDOWS
 		pfFastSinCos = _SSE2_SinCos;
 		pfFastCos = _SSE2_cos;
+#elif defined(_WIN64)
+		s_bSSE2Enabled = false;
+		bAllowSSE2 = false;
 #endif
 	} 
 	else

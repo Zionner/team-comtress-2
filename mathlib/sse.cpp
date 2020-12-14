@@ -16,7 +16,12 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifndef COMPILER_MSVC64
+#ifdef _WIN64
+#include <intrin.h>
+#include <xmmintrin.h>
+#endif
+
+#ifndef _WIN64
 // Implement for 64-bit Windows if needed.
 
 static const uint32 _sincos_masks[]	  = { (uint32)0x0,  (uint32)~0x0 };
@@ -87,13 +92,13 @@ float _SSE_Sqrt(float x)
 {
 	Assert( s_bMathlibInitialized );
 	float	root = 0.f;
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	_asm
 	{
 		sqrtss		xmm0, x
 		movss		root, xmm0
 	}
-#elif POSIX
+#elif POSIX || defined(_WIN64)
 	_mm_store_ss( &root, _mm_sqrt_ss( _mm_load_ss( &x ) ) );
 #endif
 	return root;
@@ -118,7 +123,7 @@ float _SSE_RSqrtAccurate(float x)
 }
 #else
 
-#ifdef POSIX
+#if POSIX || defined(_WIN64)
 const __m128  f3  = _mm_set_ss(3.0f);  // 3 as SSE value
 const __m128  f05 = _mm_set_ss(0.5f);  // 0.5 as SSE value
 #endif
@@ -127,7 +132,7 @@ const __m128  f05 = _mm_set_ss(0.5f);  // 0.5 as SSE value
 float _SSE_RSqrtAccurate(float a)
 {
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	float x;
 	float half = 0.5f;
 	float three = 3.f;
@@ -149,7 +154,7 @@ float _SSE_RSqrtAccurate(float a)
 	}
 
 	return x;
-#elif POSIX	
+#elif POSIX	|| defined(_WIN64)
 	__m128  xx = _mm_load_ss( &a );
     __m128  xr = _mm_rsqrt_ss( xx );
     __m128  xt;
@@ -176,7 +181,7 @@ float _SSE_RSqrtFast(float x)
 	Assert( s_bMathlibInitialized );
 
 	float rroot;
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	_asm
 	{
 		rsqrtss	xmm0, x
@@ -184,6 +189,8 @@ float _SSE_RSqrtFast(float x)
 	}
 #elif POSIX
 	__asm__ __volatile__( "rsqrtss %0, %1" : "=x" (rroot) : "x" (x) );
+#elif defined(_WIN64)
+	_mm_store_ss(&rroot, _mm_rsqrt_ss(_mm_load_ss(&x)));
 #else
 #error
 #endif
@@ -213,7 +220,7 @@ float FASTCALL _SSE_VectorNormalize (Vector& vec)
 	// be much of a performance win, considering you will very likely miss 3 branch predicts in a row.
 	if ( v[0] || v[1] || v[2] )
 	{
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	_asm
 		{
 			mov			eax, v
@@ -263,6 +270,13 @@ float FASTCALL _SSE_VectorNormalize (Vector& vec)
             : "m" (*v)
             : "xmm1", "xmm2", "xmm3", "xmm4"
  		);
+#elif defined(_WIN64)
+		__m128 toNormalize = _mm_load_ps(v);
+		__m128 dotProduct = _mm_dp_ps(toNormalize, toNormalize, 0xFF);
+		dotProduct = _mm_rsqrt_ps(dotProduct);
+		toNormalize = _mm_mul_ps(toNormalize, dotProduct);
+		_mm_store_ps(r, toNormalize);
+		_mm_store_ps(&radius, dotProduct);
 #else
 	#error "Not Implemented"
 #endif
@@ -287,7 +301,7 @@ void FASTCALL _SSE_VectorNormalizeFast (Vector& vec)
 float _SSE_InvRSquared(const float* v)
 {
 	float	inv_r2 = 1.f;
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	_asm { // Intel SSE only routine
 		mov			eax, v
 		movss		xmm5, inv_r2		// x5 = 1.0, 0, 0, 0
@@ -329,6 +343,9 @@ float _SSE_InvRSquared(const float* v)
         : "m" (*v)
         : "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5"
  		);
+#elif defined(_WIN64)
+	#pragma warning "_SSE_InvRSquared C implementation only"
+	return 1.0 / MAX(1.0, v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 #else
 	#error "Not Implemented"
 #endif
@@ -337,7 +354,7 @@ float _SSE_InvRSquared(const float* v)
 }
 
 
-#ifdef POSIX
+#if defined(POSIX) || defined(_WIN64)
 // #define _PS_CONST(Name, Val) static const ALIGN16 float _ps_##Name[4] ALIGN16_POST = { Val, Val, Val, Val }
 #define _PS_CONST_TYPE(Name, Type, Val) static const ALIGN16 Type _ps_##Name[4] ALIGN16_POST = { Val, Val, Val, Val }
 
@@ -380,7 +397,7 @@ typedef __m64 v2si;   // vector of 2 int (mmx)
 
 void _SSE_SinCos(float x, float* s, float* c)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	float t4, t8, t12;
 
 	__asm
@@ -465,7 +482,7 @@ void _SSE_SinCos(float x, float* s, float* c)
 		movss	[eax], xmm0
 		movss	[edx], xmm4
 	}
-#elif POSIX
+#elif POSIX || defined(_WIN64)
 	
 	Assert( "Needs testing, verify impl!\n" );
 	
@@ -587,7 +604,7 @@ void _SSE_SinCos(float x, float* s, float* c)
 
 float _SSE_cos( float x )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	float temp;
 	__asm
 	{
@@ -636,7 +653,7 @@ float _SSE_cos( float x )
 		movss   x,    xmm0
 
 	}
-#elif POSIX
+#elif POSIX || defined(_WIN64)
 
 	Assert( "Needs testing, verify impl!\n" );
 
@@ -745,7 +762,7 @@ float _SSE_cos( float x )
 #ifdef PLATFORM_WINDOWS_PC32
 void _SSE2_SinCos(float x, float* s, float* c)  // any x
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	__asm
 	{
 		movss	xmm0, x
@@ -821,7 +838,7 @@ void _SSE2_SinCos(float x, float* s, float* c)  // any x
 		movss	[eax], xmm0
 		movss	[edx], xmm6
 	}
-#elif POSIX
+#elif POSIX || defined(WIN64)
 	#warning "_SSE2_SinCos NOT implemented!"
 	Assert( 0 );
 #else
@@ -833,7 +850,7 @@ void _SSE2_SinCos(float x, float* s, float* c)  // any x
 #ifdef PLATFORM_WINDOWS_PC32
 float _SSE2_cos(float x)  
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	__asm
 	{
 		movss	xmm0, x
@@ -879,7 +896,7 @@ float _SSE2_cos(float x)
 		mulss	xmm0, xmm1
 		movss   x,    xmm0
 	}
-#elif POSIX
+#elif POSIX || defined(_WIN64)
 	#warning "_SSE2_cos NOT implemented!"
 	Assert( 0 );
 #else
@@ -897,7 +914,7 @@ void VectorTransformSSE(const float *in1, const matrix3x4_t& in2, float *out1)
 	Assert( s_bMathlibInitialized );
 	Assert( in1 != out1 );
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	__asm
 	{
 		mov eax, in1;
@@ -939,7 +956,7 @@ void VectorTransformSSE(const float *in1, const matrix3x4_t& in2, float *out1)
 		addss xmm0, [ecx+12]
 		movss [edx+8], xmm0;
 	}
-#elif POSIX
+#elif POSIX || defined(_WIN64)
 	#warning "VectorTransformSSE C implementation only"
 		out1[0] = DotProduct(in1, in2[0]) + in2[0][3];
 		out1[1] = DotProduct(in1, in2[1]) + in2[1][3];
@@ -956,7 +973,7 @@ void VectorRotateSSE( const float *in1, const matrix3x4_t& in2, float *out1 )
 	Assert( s_bMathlibInitialized );
 	Assert( in1 != out1 );
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	__asm
 	{
 		mov eax, in1;
@@ -995,7 +1012,7 @@ void VectorRotateSSE( const float *in1, const matrix3x4_t& in2, float *out1 )
 		addss xmm0, xmm2;
 		movss [edx+8], xmm0;
 	}
-#elif POSIX
+#elif POSIX || defined(_WIN64)
 	#warning "VectorRotateSSE C implementation only"
 		out1[0] = DotProduct( in1, in2[0] );
 		out1[1] = DotProduct( in1, in2[1] );
@@ -1006,7 +1023,7 @@ void VectorRotateSSE( const float *in1, const matrix3x4_t& in2, float *out1 )
 }
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 void _declspec(naked) _SSE_VectorMA( const float *start, float scale, const float *direction, float *dest )
 {
 	// FIXME: This don't work!! It will overwrite memory in the write to dest
@@ -1037,7 +1054,7 @@ void _declspec(naked) _SSE_VectorMA( const float *start, float scale, const floa
 }
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 #ifdef PFN_VECTORMA
 void _declspec(naked) __cdecl _SSE_VectorMA( const Vector &start, float scale, const Vector &direction, Vector &dest )
 {

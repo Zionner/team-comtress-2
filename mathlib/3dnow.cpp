@@ -16,7 +16,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#if !defined(COMPILER_MSVC64) && !defined(LINUX)
+#if !defined(_WIN64) && !defined(LINUX)
 // Implement for 64-bit Windows if needed.
 // Clang hits "fatal error: error in backend:" and other errors when trying
 // to compile the inline assembly below. 3DNow support is highly unlikely to
@@ -32,7 +32,7 @@ float _3DNow_Sqrt(float x)
 {
 	Assert( s_bMathlibInitialized );
 	float	root = 0.f;
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	_asm
 	{
 		femms
@@ -79,7 +79,7 @@ float FASTCALL _3DNow_VectorNormalize (Vector& vec)
 
 	if ( v[0] || v[1] || v[2] )
 	{
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	_asm
 		{
 			mov			eax, v
@@ -150,7 +150,7 @@ float _3DNow_InvRSquared(const float* v)
 {
 	Assert( s_bMathlibInitialized );
 	float	r2 = 1.f;
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 	_asm { // AMD 3DNow only routine
 		mov			eax, v
 		femms
