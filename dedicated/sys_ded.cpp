@@ -470,7 +470,7 @@ bool CDedicatedSteamApplication::Create( )
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-#ifndef POSIX
+#if !defined(POSIX) && !defined(_WIN64)
 	_asm
 	{
 		fninit
@@ -479,7 +479,7 @@ int main(int argc, char **argv)
 
 	SetupFPUControlWord();
 
-#ifdef POSIX
+#if defined(POSIX)
 	Q_strncpy( g_szEXEName, *argv, ARRAYSIZE( g_szEXEName ) );
 	// Store off command line for argument searching
 	BuildCmdLine( argc, argv );
@@ -489,7 +489,7 @@ int main(int argc, char **argv)
 
 	// Store off command line for argument searching
 	CommandLine()->CreateCmdLine( VCRHook_GetCommandLine() );
-#ifndef _WIN32
+#if !defined(_WIN32)
 	Plat_SetCommandLine( CommandLine()->GetCmdLine() );
 #endif
 
