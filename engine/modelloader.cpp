@@ -1835,7 +1835,12 @@ void *Hunk_AllocNameAlignedClear_( int size, int alignment, const char *pHunkNam
 	Assert(IsPowerOfTwo(alignment));
 	void *pMem = Hunk_AllocName( alignment + size, pHunkName );
 	memset( pMem, 0, size + alignment );
-	pMem = (void *)( ( ( ( unsigned long )pMem ) + (alignment-1) ) & ~(alignment-1) );
+
+#if defined(_WIN64)
+	pMem = (void*)((((unsigned __int64)pMem) + (alignment - 1)) & ~(alignment - 1));
+#else
+	pMem = (void*)((((unsigned long)pMem) + (alignment - 1)) & ~(alignment - 1));
+#endif
 
 	return pMem;
 }
@@ -1877,6 +1882,7 @@ void Mod_LoadFaces( void )
 	Assert( sizeof(msurface1_t) == 16 );
 	Assert( sizeof(msurface2_t) == 32 );
 	Assert( sizeof(msurfacelighting_t) == 32 );
+	Assert(sizeof(SurfaceHandle_t) == 8);
 
 	msurface1_t *out1 = Hunk_AllocNameAlignedClear< msurface1_t >( count, 16, va( "%s [%s]", lh.GetLoadName(), "surface1" ) );
 	msurface2_t *out2 = Hunk_AllocNameAlignedClear< msurface2_t >( count, 32, va( "%s [%s]", lh.GetLoadName(), "surface2" ) );

@@ -191,8 +191,8 @@ int ParseString( char const *pText, char *buf, size_t bufsize )
 	{
 		char const *pStart = pTemp;
 		pTemp = SkipText( pTemp );
-
-		int len =  min( pTemp - pStart + 1, (int)bufsize - 1 );
+		const int currlen = pTemp - pStart + 1;
+		int len =  min( currlen, (int)bufsize - 1 );
 		Q_strncpy( buf, pStart, len );
 		buf[ len ] = 0;
 		return 1;
