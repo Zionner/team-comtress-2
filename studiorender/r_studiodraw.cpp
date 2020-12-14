@@ -658,7 +658,7 @@ static matrix3x4_t *ComputeSkinMatrix( mstudioboneweight_t &boneweights, matrix3
 static matrix3x4_t *ComputeSkinMatrixSSE( mstudioboneweight_t &boneweights, matrix3x4_t *pPoseToWorld, matrix3x4_t &result )
 {
 	// NOTE: pPoseToWorld, being cache aligned, doesn't need explicit initialization
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( _X360 ) && !defined(_WIN64)
 	switch( boneweights.numbones )
 	{
 	default:
@@ -872,6 +872,8 @@ static matrix3x4_t *ComputeSkinMatrixSSE( mstudioboneweight_t &boneweights, matr
 	return ComputeSkinMatrix( boneweights, pPoseToWorld, result );
 #elif defined( _X360 )
 	return ComputeSkinMatrix( boneweights, pPoseToWorld, result );
+#elif defined(_WIN64)
+	return ComputeSkinMatrix(boneweights, pPoseToWorld, result);
 #else
 	#error
 #endif

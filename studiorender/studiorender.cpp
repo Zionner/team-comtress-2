@@ -473,6 +473,15 @@ void CStudioRender::DrawModel( const DrawModelInfo_t& info, const StudioRenderCo
 		Msg( "Missing LODs for %s, lod index is %d.\n", m_pStudioHdr->pszName(), info.m_Lod );
 		return;
 	}
+
+	if (pBoneToWorld == nullptr)
+	{
+		// If we are missing LODs then print the model name before returning
+		// so we can perhaps correct the underlying problem.
+		Msg("Missing Bone To World Matrix for %s, lod index is %d.\n", m_pStudioHdr->pszName(), info.m_Lod);
+		return;
+	}
+
 	m_pStudioMeshes = info.m_pHardwareData->m_pLODs[info.m_Lod].m_pMeshData;
 
 	// Bone to world must be set before calling drawmodel; it uses that here
